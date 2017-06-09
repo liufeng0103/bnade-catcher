@@ -20,3 +20,12 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# 测试用的配置文件，防止泄露相关密码
+/src/main/resources/dev/
+
+# eclipse项目配置文件
+.classpath
+.settings
+.project
+/target/
