@@ -65,10 +65,10 @@ public class AuctionCatcher {
 	
 	/**
 	 * 计算每种物品的最低一口单价，并把拍卖数据保存到数据库
-	 * @param realm
-	 * @throws SQLException 
-	 * @throws IOException 
-	 * @throws JsonSyntaxException 
+	 * @param realm 服务器信息
+	 * @throws SQLException 数据库异常
+	 * @throws IOException io异常
+	 * @throws JsonSyntaxException json处理异常
 	 */
 	private static void processAuctions(Realm realm) throws SQLException, JsonSyntaxException, IOException {
 		List<Auction> aucs = getAuctions(realm);
@@ -94,7 +94,7 @@ public class AuctionCatcher {
 					aucTmp.setOwner(auc.getOwner());
 					aucTmp.setOwnerRealm(auc.getOwnerRealm());
 					aucTmp.setBid(bid);
-					aucTmp.setBuyout(buyout); 
+					aucTmp.setBuyout(buyout);
 					aucTmp.setQuantity(auc.getQuantity());
 					aucTmp.setTimeLeft(auc.getTimeLeft());
 					aucTmp.setPetSpeciesId(auc.getPetSpeciesId());
@@ -103,7 +103,7 @@ public class AuctionCatcher {
 					aucTmp.setPetLevel(auc.getPetLevel());
 					aucTmp.setBonusLists(auc.getBonusLists());
 					aucTmp.setLastModified(realm.getLastModified());
-					
+
 					minBuyoutAucs.put(key, aucTmp);
 				} else {
 					// 计算总数量
@@ -114,13 +114,17 @@ public class AuctionCatcher {
 						aucTmp.setOwner(auc.getOwner());
 						aucTmp.setOwnerRealm(auc.getOwnerRealm());
 						aucTmp.setBid(bid);
-						aucTmp.setBuyout(buyout); 
+						aucTmp.setBuyout(buyout);
 						aucTmp.setTimeLeft(auc.getTimeLeft());
 						aucTmp.setContext(auc.getContext());
 						aucTmp.setPetLevel(auc.getPetLevel());
 					}
 				}
 			}
+
+			// 对于810等级101可穿戴圣物的特殊处理
+			// 影响效率，不需要的可以注释
+			processSpecialAuctions(auc, minBuyoutAucs);
 		}
 
 		// 物品通知
@@ -144,7 +148,7 @@ public class AuctionCatcher {
 		logger.info("[{}]删除拍卖行最低一口价数据", realm.getName());
 		auctionDao.deleteAllMinBuyout(realm.getId());
 		start = System.currentTimeMillis();
-		List<Auction> minBuyoutAucList = new ArrayList<Auction>(minBuyoutAucs.values());
+		List<Auction> minBuyoutAucList = new ArrayList<>(minBuyoutAucs.values());
 		auctionDao.insertMinBuyout(realm.getId(), minBuyoutAucList);
 		logger.info("[{}]保存{}条拍卖行最低一口价数据完毕,用时{}", realm.getName(), minBuyoutAucs.size(), TimeUtils.format(System.currentTimeMillis() - start));
 		
@@ -160,6 +164,33 @@ public class AuctionCatcher {
 		start = System.currentTimeMillis();
 		auctionDao.copyMinBuyoutToDaily(realm);
 		logger.info("[{}]保存{}条拍卖行最低一口价数据到历史表完毕,用时{}", realm.getName(), minBuyoutAucs.size(), TimeUtils.format(System.currentTimeMillis() - start));
+	}
+
+	// 810等级101可穿戴圣物的id
+	private static List<Integer> itemIds = new ArrayList<>();
+	static {
+		itemIds.add(141284);
+		itemIds.add(141285);
+		itemIds.add(141286);
+		itemIds.add(141287);
+		itemIds.add(141288);
+		itemIds.add(141289);
+		itemIds.add(141290);
+		itemIds.add(141291);
+		itemIds.add(141292);
+		itemIds.add(141293);
+	}
+	/**
+	 * 对于810等级101可穿戴圣物的特殊处理
+	 * 保存所有这类数据
+	 * @param auc 一条拍卖数据信息
+	 * @param minBuyoutAucs 保存所有最低一口价
+	 */
+	private static void processSpecialAuctions(Auction auc, Map<String, Auction> minBuyoutAucs) {
+		if (auc.getContext() == 3 && itemIds.contains(auc.getItem())) {
+			minBuyoutAucs.put(auc.getItem() + "_special_" + auc.getContext(), auc);
+			logger.debug("Add special={}", auc);
+		}
 	}
 
 	/**
