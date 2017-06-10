@@ -29,3 +29,7 @@ hs_err_pid*
 .settings
 .project
 /target/
+
+# idea项目配置文件
+.idea
+*.iml
