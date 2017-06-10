@@ -1,5 +1,6 @@
 package com.bnade.wow.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,7 +33,13 @@ public class DBUtils {
 
 	private static Properties loadPropertyFile(String fileName) {
 		Properties p = null;
-		InputStream is = DBUtils.class.getClassLoader().getResourceAsStream(fileName);
+		InputStream is = null;
+		// 如果在classpath目录中存在dev目录，则使用dev中的配置文件
+		if (new File(DBUtils.class.getClassLoader().getResource("").getFile() + "dev").exists()) {
+			is = DBUtils.class.getClassLoader().getResourceAsStream("dev/" + fileName);
+		} else {
+			is = DBUtils.class.getClassLoader().getResourceAsStream(fileName);	
+		}
 		try {
 			if (is == null) {
 				is = new FileInputStream(fileName);
@@ -70,5 +77,9 @@ public class DBUtils {
 			}
 		}	
 		return isTableExist;
+	}
+	
+	public static void main(String[] args) throws SQLException {
+		System.out.println(DBUtils.getDataSource().getConnection() == null);
 	}
 }

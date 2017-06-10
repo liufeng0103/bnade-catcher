@@ -1,5 +1,6 @@
 package com.bnade.wow.util;
 
+import java.io.File;
 import java.util.ResourceBundle;
 
 public class ConfigUtils {
@@ -10,7 +11,12 @@ public class ConfigUtils {
 
 	private static ResourceBundle getResourceBundle() {
 		if (bundle == null) {
-			bundle = ResourceBundle.getBundle(BUNDLENAME);
+			// 如果在classpath目录中存在dev目录，则使用dev中的配置文件
+			if (new File(ConfigUtils.class.getClassLoader().getResource("").getFile() + "dev").exists()) {
+				bundle = ResourceBundle.getBundle("dev/" + BUNDLENAME);
+			} else {
+				bundle = ResourceBundle.getBundle(BUNDLENAME);
+			}
 		}
 		return bundle;
 	}
@@ -36,4 +42,10 @@ public class ConfigUtils {
 		return getProperty(name, null);
 	}
 
+	public static void main(String[] args) {
+		
+		System.out.println(ConfigUtils.class.getClassLoader().getResource("").getFile());
+		System.out.println(new File(ConfigUtils.class.getClassLoader().getResource("").getFile() + "dev").exists());
+		System.out.println(ConfigUtils.getProperty("email_from"));
+	}
 }
