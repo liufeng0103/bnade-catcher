@@ -187,7 +187,7 @@ public class AuctionCatcher {
 	 * @param minBuyoutAucs 保存所有最低一口价
 	 */
 	private static void processSpecialAuctions(Auction auc, Map<String, Auction> minBuyoutAucs) {
-		if (auc.getContext() == 3 && itemIds.contains(auc.getItem())) {
+		if ((auc.getContext() == 3 || auc.getContext() == 5) && itemIds.contains(auc.getItem())) {
 			minBuyoutAucs.put(auc.getItem() + "_special_" + auc.getContext(), auc);
 			logger.debug("Add special={}", auc);
 		}

@@ -19,6 +19,16 @@ public class Auction {
 	private int context;
 	private String bonusLists;	
 	private long lastModified;
+	private int realmId;
+
+	public int getRealmId() {
+		return realmId;
+	}
+
+	public void setRealmId(int realmId) {
+		this.realmId = realmId;
+	}
+
 	private Item itemObj;
 
 	public Date getUpdated() {

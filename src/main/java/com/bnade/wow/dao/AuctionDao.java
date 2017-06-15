@@ -25,8 +25,8 @@ public class AuctionDao {
 	private static final String AUCTION_TABLE_PREFIX = "t_ah_data_";
 	/**
 	 * 删除服务器t_ah_data_x表的所有数据
-	 * @param realmId
-	 * @throws SQLException 
+	 * @param realmId 服务器id
+	 * @throws SQLException 数据库异常
 	 */
 	public void deleteAll(int realmId) throws SQLException {
 		runner.update("truncate " + AUCTION_TABLE_PREFIX + realmId);
@@ -70,8 +70,8 @@ public class AuctionDao {
 	private static final String MINBUYOUT_AUCTION_TABLE = "t_ah_min_buyout_data";
 	/**
 	 * 删除服务器t_ah_min_buyout_data表的所有数据
-	 * @param realmId
-	 * @throws SQLException 
+	 * @param realmId 服务器id
+	 * @throws SQLException 数据库异常
 	 */
 	public void deleteAllMinBuyout(int realmId) throws SQLException {
 		runner.update("delete from " + MINBUYOUT_AUCTION_TABLE + " where realmId=?", realmId);
@@ -129,9 +129,6 @@ public class AuctionDao {
 	private static final String DAILY_MINBUYOUT_AUCTION_TABLE_PREFIX = "t_ah_min_buyout_data_";
 	
 	/**
-	 * 
-	 * @param realmId
-	 * @param aucs
 	 * @throws SQLException
 	 */
 	public void copyMinBuyoutToDaily(Realm realm) throws SQLException {
@@ -168,6 +165,38 @@ public class AuctionDao {
 			runner.update(sb.toString());
 			runner.update("ALTER TABLE " + tableName + " ADD INDEX(item)");
 			logger.info("表{}未创建， 创建表和索引", tableName);
+		}
+	}
+
+	public void save(int realmId, List<Auction> aucs) throws SQLException {
+		Connection con = DBUtils.getDataSource().getConnection();
+		try {
+			boolean autoCommit = con.getAutoCommit();
+			con.setAutoCommit(false);
+
+			Object[][] params = new Object[aucs.size()][14];
+			for (int i = 0; i < aucs.size(); i++) {
+				Auction auc = aucs.get(i);
+				params[i][0] = auc.getAuc();
+				params[i][1] = auc.getItem();
+				params[i][2] = auc.getOwner();
+				params[i][3] = auc.getOwnerRealm();
+				params[i][4] = auc.getBid();
+				params[i][5] = auc.getBuyout();
+				params[i][6] = auc.getQuantity();
+				params[i][7] = auc.getTimeLeft();
+				params[i][8] = auc.getPetSpeciesId();
+				params[i][9] = auc.getPetLevel();
+				params[i][10] = auc.getPetBreedId();
+				params[i][11] = auc.getContext();
+				params[i][12] = auc.getBonusLists();
+				params[i][13] = auc.getRealmId();
+			}
+			runner.batch(con, "insert into auction (auc,item_id,owner,owner_realm,bid,buyout,quantity,time_left,pet_species_id,pet_level,pet_breed_id,context,bonus_list,realm_id) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", params);
+			con.commit();
+			con.setAutoCommit(autoCommit);
+		} finally {
+			DbUtils.closeQuietly(con);
 		}
 	}
 	
