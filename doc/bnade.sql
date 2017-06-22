@@ -1,4 +1,22 @@
+CREATE DATABASE bnade;
+
 USE bnade;
+
+-- 服务器信息表
+DROP TABLE IF EXISTS `realm`;
+CREATE TABLE IF NOT EXISTS `realm` (
+	`id` INT NOT NULL COMMENT '服务器ID',
+	`name` VARCHAR(20) NOT NULL COMMENT '服务器名（包括合服）',
+	`type` VARCHAR(3) NOT NULL COMMENT '服务器类型PVP，PVE',
+	`url` VARCHAR(128) NOT NULL COMMENT '拍卖行文件地址',
+	`last_modified` BIGINT NOT NULL DEFAULT 0 COMMENT '文件更新时间',
+	`interval` BIGINT NOT NULL DEFAULT 0 COMMENT '数据更新间隔',
+	`auction_quantity` INT NOT NULL DEFAULT 0 COMMENT '拍卖数量',
+	`owner_quantity` INT NOT NULL DEFAULT 0 COMMENT '卖家数量',
+	`item_quantity` INT NOT NULL DEFAULT 0 COMMENT '物品种类数量',
+	`active` INT NOT NULL DEFAULT 1 COMMENT '是否启用，1-启用，其它不启用',
+	PRIMARY KEY(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '服务器信息表';
 
 -- 拍卖数据表，保存所有服务器的所有拍卖
 DROP TABLE IF EXISTS auction;
@@ -28,3 +46,5 @@ PARTITION BY LIST(realm_id) (
 ALTER TABLE auction ADD INDEX(item_id);
 -- 用于查询某个卖家的所有拍卖物品
 ALTER TABLE auction ADD INDEX(owner);
+
+

@@ -4,10 +4,10 @@ import com.bnade.wow.catcher.entity.JAuction;
 import com.bnade.wow.catcher.entity.JAuctions;
 import com.bnade.wow.v2.dao.AuctionDao;
 import com.bnade.wow.dao.DaoFactory;
-import com.bnade.wow.dao.RealmDao;
 import com.bnade.wow.dao.UserDao;
+import com.bnade.wow.v2.dao.RealmDao;
 import com.bnade.wow.v2.entity.Auction;
-import com.bnade.wow.entity.Realm;
+import com.bnade.wow.v2.entity.Realm;
 import com.bnade.wow.entity.UserItemNotification;
 import com.bnade.wow.util.ConfigUtils;
 import com.bnade.wow.util.HttpUtils;
@@ -47,6 +47,7 @@ public class AuctionCatcher {
 			long lastModified = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:sss zzz", Locale.US).parse(HttpUtils.getHeaderFields(realm.getUrl()).get("Last-Modified").get(0)).getTime();
 			if (lastModified > realm.getLastModified()) {
 				logger.info("[{}]2次更新间隔{}", realm.getName(), TimeUtils.format(lastModified - realm.getLastModified()));
+				realm.setInterval(lastModified - realm.getLastModified());
 				realm.setLastModified(lastModified);
 
 				processAuctions(realm);
@@ -68,12 +69,15 @@ public class AuctionCatcher {
 	private static void processAuctions(Realm realm) throws SQLException, JsonSyntaxException, IOException {
 		List<Auction> aucs = getAuctions(realm);
 		Map<String, Auction> minBuyoutAucs = new HashMap<>();
+		Set<String> owners = new HashSet<>();
 		int maxAuc = 0;
 		for (Auction auc : aucs) {
 			// 计算最大auc
 			if (maxAuc < auc.getAuc()) {
 				maxAuc = auc.getAuc();
 			}
+			// 计算卖家数
+			owners.add(auc.getOwner());
 			// 计算每种物品的最低一口价
 			// 去除没有一口价的物品
 			if (auc.getBuyout() != 0) {
@@ -148,12 +152,11 @@ public class AuctionCatcher {
 //		logger.info("[{}]保存{}条拍卖行最低一口价数据完毕,用时{}", realm.getName(), minBuyoutAucs.size(), TimeUtils.format(System.currentTimeMillis() - start));
 		
 		// 更新realm信息
-		logger.info("[{}]新增拍卖{}", realm.getName(), maxAuc - realm.getMaxAucId());
-		RealmDao realmDao = DaoFactory.getRealmDao();
-		realm.setMaxAucId(maxAuc);
+		RealmDao realmDao = new RealmDao();
 		realm.setAuctionQuantity(aucs.size());
 		realm.setItemQuantity(minBuyoutAucs.size());
-		logger.info("[{}]拍卖数据文件信息更新{}条记录完毕", realm.getName(), realmDao.update(realm));
+		realm.setOwnerQuantity(owners.size());
+		logger.info("[{}]拍卖数据文件信息更新{}条记录完毕", realm.getName(), realmDao.save(realm));
 		
 		// 保存所有最低一口价数据到历史表
 //		start = System.currentTimeMillis();
@@ -357,7 +360,7 @@ class RealmQueue {
 
 	public static synchronized Realm next() throws SQLException {
 		if (realms == null) {
-			realms = DaoFactory.getRealmDao().getAll();
+			realms = new RealmDao().findAll();
 		}
 		Realm realm = realms.get(index);
 		if (index == realms.size() - 1) {
