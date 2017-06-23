@@ -5,6 +5,8 @@ bnade的后台，数据采集，统计，分析，归档等
 
 程序还在改造中，请参考老程序https://github.com/liufeng0103/bnade
 
+item和bonus关系请参考doc下的itembonus.csv文件，[文件地址](https://gist.github.com/erorus/35705144b1a4ad015924)由https://theunderminejournal.com/作者[erorus](https://github.com/erorus)分享
+
 ## 项目环境
 - java 1.8
 - mysql 5.7
