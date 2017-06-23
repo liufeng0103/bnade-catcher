@@ -7,6 +7,7 @@ import com.bnade.wow.dao.DaoFactory;
 import com.bnade.wow.dao.UserDao;
 import com.bnade.wow.v2.dao.RealmDao;
 import com.bnade.wow.v2.entity.Auction;
+import com.bnade.wow.v2.entity.LowestAuction;
 import com.bnade.wow.v2.entity.Realm;
 import com.bnade.wow.entity.UserItemNotification;
 import com.bnade.wow.util.ConfigUtils;
@@ -68,7 +69,7 @@ public class AuctionCatcher {
 	 */
 	private static void processAuctions(Realm realm) throws SQLException, JsonSyntaxException, IOException {
 		List<Auction> aucs = getAuctions(realm);
-		Map<String, Auction> minBuyoutAucs = new HashMap<>();
+		Map<String, LowestAuction> minBuyoutAucs = new HashMap<>();
 		Set<String> owners = new HashSet<>();
 		int maxAuc = 0;
 		for (Auction auc : aucs) {
@@ -81,42 +82,47 @@ public class AuctionCatcher {
 			// 计算每种物品的最低一口价
 			// 去除没有一口价的物品
 			if (auc.getBuyout() != 0) {
-				String key = "" + auc.getItem() + "-" + auc.getPetSpeciesId() + "-" + auc.getPetBreedId() + "-" + auc.getBonusList();
+				String key = "" + auc.getItemId() + "-" + auc.getPetSpeciesId() + "-" + auc.getPetBreedId() + "-" + auc.getBonusList();
 				// 计算单间物品的一口价
 				long buyout = auc.getBuyout()/auc.getQuantity();
 				long bid = auc.getBid()/auc.getQuantity();
-				Auction aucTmp = minBuyoutAucs.get(key);
+				LowestAuction aucTmp = minBuyoutAucs.get(key);
 				if (aucTmp == null) {
-					aucTmp = new Auction();
+					aucTmp = new LowestAuction();
 					aucTmp.setAuc(auc.getAuc());
-					aucTmp.setItem(auc.getItem());
+					aucTmp.setItemId(auc.getItemId());
 					aucTmp.setOwner(auc.getOwner());
 					aucTmp.setOwnerRealm(auc.getOwnerRealm());
 					aucTmp.setBid(bid);
 					aucTmp.setBuyout(buyout);
 					aucTmp.setQuantity(auc.getQuantity());
+					aucTmp.setTotalQuantity(auc.getQuantity());
 					aucTmp.setTimeLeft(auc.getTimeLeft());
 					aucTmp.setPetSpeciesId(auc.getPetSpeciesId());
 					aucTmp.setPetBreedId(auc.getPetBreedId());
 					aucTmp.setContext(auc.getContext());
 					aucTmp.setPetLevel(auc.getPetLevel());
 					aucTmp.setBonusList(auc.getBonusList());
-					aucTmp.setRealmId(realm.getId());
+					aucTmp.setRealmId(auc.getRealmId());
 
 					minBuyoutAucs.put(key, aucTmp);
 				} else {
 					// 计算总数量
-					aucTmp.setQuantity(auc.getQuantity() + aucTmp.getQuantity());
+					aucTmp.setTotalQuantity(auc.getQuantity() + aucTmp.getTotalQuantity());
 					if (aucTmp.getBuyout() > buyout) {
 						// 更新最低一口价拍卖信息
 						aucTmp.setAuc(auc.getAuc());
-						aucTmp.setOwner(auc.getOwner());
+						aucTmp.setOwner(auc.getOwner()); // 最低一口价可能多个卖家，这里只保存一个
 						aucTmp.setOwnerRealm(auc.getOwnerRealm());
 						aucTmp.setBid(bid);
 						aucTmp.setBuyout(buyout);
+						aucTmp.setQuantity(auc.getQuantity());
 						aucTmp.setTimeLeft(auc.getTimeLeft());
 						aucTmp.setContext(auc.getContext());
 						aucTmp.setPetLevel(auc.getPetLevel());
+					} else if (aucTmp.getBuyout() == buyout) {
+						// 计算相同最低一口价的数量
+						aucTmp.setQuantity(auc.getQuantity() + aucTmp.getQuantity());
 					}
 				}
 			}
@@ -140,16 +146,16 @@ public class AuctionCatcher {
 		logger.info("[{}]删除上一次拍卖行数据", realm.getName());
 		auctionDao.deleteByRealmId(realm.getId());
 		long start = System.currentTimeMillis();
-		auctionDao.save(realm.getId(), aucs);
+		auctionDao.save(aucs);
 		logger.info("[{}]保存{}条拍卖行数据完毕, 用时{}", realm.getName(), aucs.size(), TimeUtils.format(System.currentTimeMillis() - start));
 			
 		// 保存所有最低一口价数据
-//		logger.info("[{}]删除拍卖行最低一口价数据", realm.getName());
-//		auctionDao.deleteAllMinBuyout(realm.getId());
-//		start = System.currentTimeMillis();
-//		List<Auction> minBuyoutAucList = new ArrayList<>(minBuyoutAucs.values());
-//		auctionDao.insertMinBuyout(realm.getId(), minBuyoutAucList);
-//		logger.info("[{}]保存{}条拍卖行最低一口价数据完毕,用时{}", realm.getName(), minBuyoutAucs.size(), TimeUtils.format(System.currentTimeMillis() - start));
+		logger.info("[{}]删除拍卖行最低一口价数据", realm.getName());
+		auctionDao.deleteLowestByRealmId(realm.getId());
+		start = System.currentTimeMillis();
+		List<LowestAuction> minBuyoutAucList = new ArrayList<>(minBuyoutAucs.values());
+		auctionDao.saveLowest(minBuyoutAucList);
+		logger.info("[{}]保存{}条拍卖行最低一口价数据完毕,用时{}", realm.getName(), minBuyoutAucs.size(), TimeUtils.format(System.currentTimeMillis() - start));
 		
 		// 更新realm信息
 		RealmDao realmDao = new RealmDao();
@@ -185,8 +191,8 @@ public class AuctionCatcher {
 	 * @param minBuyoutAucs 保存所有最低一口价
 	 */
 	private static void processSpecialAuctions(Auction auc, Map<String, Auction> minBuyoutAucs) {
-		if ((auc.getContext() == 3 || auc.getContext() == 5) && itemIds.contains(auc.getItem())) {
-			minBuyoutAucs.put(auc.getItem() + "_special_" + auc.getContext(), auc);
+		if ((auc.getContext() == 3 || auc.getContext() == 5) && itemIds.contains(auc.getItemId())) {
+			minBuyoutAucs.put(auc.getItemId() + "_special_" + auc.getContext(), auc);
 			logger.debug("Add special={}", auc);
 		}
 	}
@@ -204,7 +210,7 @@ public class AuctionCatcher {
 		for (JAuction jAuc : jAucs) {
 			Auction auc = new Auction();
 			auc.setAuc(jAuc.getAuc());
-			auc.setItem(jAuc.getItem());
+			auc.setItemId(jAuc.getItem());
 			auc.setOwner(jAuc.getOwner());
 			auc.setOwnerRealm(jAuc.getOwnerRealm());
 			auc.setBid(jAuc.getBid());
@@ -216,6 +222,7 @@ public class AuctionCatcher {
 			auc.setPetBreedId(jAuc.getPetBreedId());
 			auc.setContext(jAuc.getContext());
 			auc.setBonusList(jAuc.convertBonusListsToString());
+			auc.setRealmId(realm.getId());
 			aucs.add(auc);
 		}
 		return aucs;

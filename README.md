@@ -7,6 +7,10 @@ bnade的后台，数据采集，统计，分析，归档等
 
 item和bonus关系请参考doc下的itembonus.csv文件，[文件地址](https://gist.github.com/erorus/35705144b1a4ad015924)由https://theunderminejournal.com/作者[erorus](https://github.com/erorus)分享
 
+原来的数据库设计为一个游戏服务器一张表, 现在新建了v2目录使用分区表来重新实现
+
+对于NoSQL数据库,之前有考虑过MongoDB,由于租的服务器配置有限,无法带动，继续使用MySQL
+
 ## 项目环境
 - java 1.8
 - mysql 5.7

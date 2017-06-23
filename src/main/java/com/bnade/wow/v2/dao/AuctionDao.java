@@ -2,6 +2,7 @@ package com.bnade.wow.v2.dao;
 
 import com.bnade.wow.util.DBUtils;
 import com.bnade.wow.v2.entity.Auction;
+import com.bnade.wow.v2.entity.LowestAuction;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;
@@ -22,7 +23,12 @@ public class AuctionDao {
 
     private QueryRunner runner = new QueryRunner(DBUtils.getDataSource());
 
-    public void save(int realmId, List<Auction> aucs) throws SQLException {
+    /**
+     * 保存拍卖数据
+     * @param aucs 拍卖数据
+     * @throws SQLException 数据库异常
+     */
+    public void save(List<Auction> aucs) throws SQLException {
         Connection con = DBUtils.getDataSource().getConnection();
         try {
             boolean autoCommit = con.getAutoCommit();
@@ -32,7 +38,7 @@ public class AuctionDao {
             for (int i = 0; i < aucs.size(); i++) {
                 Auction auc = aucs.get(i);
                 params[i][0] = auc.getAuc();
-                params[i][1] = auc.getItem();
+                params[i][1] = auc.getItemId();
                 params[i][2] = auc.getOwner();
                 params[i][3] = auc.getOwnerRealm();
                 params[i][4] = auc.getBid();
@@ -44,7 +50,7 @@ public class AuctionDao {
                 params[i][10] = auc.getPetBreedId();
                 params[i][11] = auc.getContext();
                 params[i][12] = auc.getBonusList();
-                params[i][13] = realmId;
+                params[i][13] = auc.getRealmId();
             }
             runner.batch(con, "insert into auction (auc,item_id,owner,owner_realm,bid,buyout,quantity,time_left,pet_species_id,pet_level,pet_breed_id,context,bonus_list,realm_id) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", params);
             con.commit();
@@ -72,6 +78,54 @@ public class AuctionDao {
             runner.update("ALTER TABLE auction DROP PARTITION p" + realmId);
             runner.update(" ALTER TABLE auction ADD PARTITION (PARTITION p" + realmId + " VALUES IN (" + realmId + "))");
         }
+    }
 
+    /**
+     * 通过realm id删除这个服务器的所有最低一口价拍卖数据
+     * @param realmId 服务器id
+     * @throws SQLException 数据库异常
+     */
+    public void deleteLowestByRealmId(int realmId) throws SQLException {
+        runner.update("DELETE FROM lowest_auction where realm_id=?", realmId);
+    }
+
+    /**
+     * 保存最低一口价拍卖数据
+     * @param aucs 拍卖数据
+     * @throws SQLException 数据库异常
+     */
+    public void saveLowest(List<LowestAuction> aucs) throws SQLException {
+        Connection con = DBUtils.getDataSource().getConnection();
+        try {
+            boolean autoCommit = con.getAutoCommit();
+            con.setAutoCommit(false);
+
+            Object[][] params = new Object[aucs.size()][15];
+            for (int i = 0; i < aucs.size(); i++) {
+                LowestAuction auc = aucs.get(i);
+                params[i][0] = auc.getAuc();
+                params[i][1] = auc.getItemId();
+                params[i][2] = auc.getOwner();
+                params[i][3] = auc.getOwnerRealm();
+                params[i][4] = auc.getBid();
+                params[i][5] = auc.getBuyout();
+                params[i][6] = auc.getQuantity();
+                params[i][7] = auc.getTotalQuantity();
+                params[i][8] = auc.getTimeLeft();
+                params[i][9] = auc.getPetSpeciesId();
+                params[i][10] = auc.getPetLevel();
+                params[i][11] = auc.getPetBreedId();
+                params[i][12] = auc.getContext();
+                params[i][13] = auc.getBonusList();
+                params[i][14] = auc.getRealmId();
+            }
+            runner.batch(con,
+                    "insert into lowest_auction (auc,item_id,owner,owner_realm,bid,buyout,quantity,total_quantity,time_left,pet_species_id,pet_level,pet_breed_id,context,bonus_list,realm_id) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    params);
+            con.commit();
+            con.setAutoCommit(autoCommit);
+        } finally {
+            DbUtils.closeQuietly(con);
+        }
     }
 }

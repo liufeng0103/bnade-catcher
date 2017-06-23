@@ -23,8 +23,8 @@ DROP TABLE IF EXISTS auction;
 CREATE TABLE IF NOT EXISTS auction (
 	auc INT NOT NULL COMMENT '拍卖ID',
 	item_id INT NOT NULL COMMENT '物品ID',
-	owner VARCHAR(12) NOT NULL COMMENT '玩家',
-	owner_realm VARCHAR(8) NOT NULL COMMENT '玩家所在服务器',
+	owner VARCHAR(12) NOT NULL COMMENT '卖家',
+	owner_realm VARCHAR(8) NOT NULL COMMENT '卖家所在服务器',
 	bid BIGINT NOT NULL COMMENT '竞价',
 	buyout BIGINT NOT NULL COMMENT '一口价',
 	quantity INT NOT NULL COMMENT '数量',
@@ -37,14 +37,40 @@ CREATE TABLE IF NOT EXISTS auction (
 	realm_id INT NOT NULL COMMENT '服务器ID',
 	PRIMARY KEY(auc,realm_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '拍卖数据表'
--- 对realm_id分区，每个服务器的数据相对独立，一个服务器一个分区, 由于程序自动检查和创建分区，这里不创建所有服务器分区
+-- 对realm_id分区，每个服务器的数据相对独立，一个服务器一个分区, 由于程序自动检查和创建分区，这里不创建所有服务器分区，主要用来标识这是一个分区表
 -- 新增分区 ALTER TABLE auction ADD PARTITION (PARTITION p2 VALUES IN (2));
 PARTITION BY LIST(realm_id) (
     PARTITION p1 VALUES IN (1)
 );
+-- 分区表的索引会为每个分区创建自己的索引
 -- 为item_id添加索引用于查询服务器某种物品的所有拍卖
 ALTER TABLE auction ADD INDEX(item_id);
 -- 用于查询某个卖家的所有拍卖物品
 ALTER TABLE auction ADD INDEX(owner);
 
+-- 最低一口价拍卖数据表
+DROP TABLE IF EXISTS lowest_auction;
+CREATE TABLE IF NOT EXISTS lowest_auction (
+    id BIGINT NOT NULL AUTO_INCREMENT COMMENT '自增ID，便于插入数据',
+    auc INT NOT NULL COMMENT '拍卖ID',
+    item_id INT NOT NULL COMMENT '物品ID',
+    owner VARCHAR(12) NOT NULL COMMENT '卖家',
+    owner_realm VARCHAR(8) NOT NULL COMMENT '卖家所在服务器',
+    bid BIGINT NOT NULL COMMENT '竞价',
+    buyout BIGINT NOT NULL COMMENT '一口价',
+    quantity INT NOT NULL COMMENT '数量',
+    total_quantity INT NOT NULL COMMENT '总数量',
+    time_left VARCHAR(12) NOT NULL COMMENT '剩余时间',
+    pet_species_id INT NOT NULL COMMENT '宠物ID',
+    pet_level INT NOT NULL COMMENT '宠物等级',
+    pet_breed_id INT NOT NULL COMMENT '宠物类型',
+    context INT NOT NULL COMMENT '物品出处',
+    bonus_list VARCHAR(20) NOT NULL COMMENT '物品奖励',
+    realm_id INT NOT NULL COMMENT '服务器ID',
+    PRIMARY KEY(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '最低一口价拍卖数据表';
+-- 查询物品在所有服务器的最低一口价
+ALTER TABLE lowest_auction ADD INDEX(item_id, pet_species_id);
+-- 删除某个服务器所有数据
+ALTER TABLE lowest_auction ADD INDEX(realm_id);
 

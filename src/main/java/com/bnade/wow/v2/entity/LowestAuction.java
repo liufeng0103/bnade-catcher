@@ -1,10 +1,11 @@
 package com.bnade.wow.v2.entity;
 
 /**
- * 拍卖数据记录
+ * 最低一口价拍卖数据
  * Created by liufeng0103@163.com on 2017/6/11.
  */
-public class Auction {
+public class LowestAuction {
+    private Long id;
     private Integer auc;
     private Integer itemId;
     private String owner;
@@ -12,6 +13,7 @@ public class Auction {
     private Long bid;
     private Long buyout;
     private Integer quantity;
+    private Integer totalQuantity;
     private String timeLeft;
     private Integer petSpeciesId;
     private Integer petLevel;
@@ -19,6 +21,14 @@ public class Auction {
     private Integer context;
     private String bonusList;
     private Integer realmId;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Integer getAuc() {
         return auc;
@@ -74,6 +84,14 @@ public class Auction {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public Integer getTotalQuantity() {
+        return totalQuantity;
+    }
+
+    public void setTotalQuantity(Integer totalQuantity) {
+        this.totalQuantity = totalQuantity;
     }
 
     public String getTimeLeft() {
@@ -134,14 +152,16 @@ public class Auction {
 
     @Override
     public String toString() {
-        return "Auction{" +
-                "auc=" + auc +
+        return "LowestAuction{" +
+                "id=" + id +
+                ", auc=" + auc +
                 ", itemId=" + itemId +
                 ", owner='" + owner + '\'' +
                 ", ownerRealm='" + ownerRealm + '\'' +
                 ", bid=" + bid +
                 ", buyout=" + buyout +
                 ", quantity=" + quantity +
+                ", totalQuantity=" + totalQuantity +
                 ", timeLeft='" + timeLeft + '\'' +
                 ", petSpeciesId=" + petSpeciesId +
                 ", petLevel=" + petLevel +
