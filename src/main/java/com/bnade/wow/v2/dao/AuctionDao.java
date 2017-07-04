@@ -1,11 +1,16 @@
 package com.bnade.wow.v2.dao;
 
 import com.bnade.wow.util.DBUtils;
+import com.bnade.wow.util.TimeUtils;
 import com.bnade.wow.v2.entity.Auction;
+import com.bnade.wow.v2.entity.ItemBonus;
 import com.bnade.wow.v2.entity.LowestAuction;
+import com.bnade.wow.v2.entity.Realm;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +26,13 @@ public class AuctionDao {
 
     private static final Logger logger = LoggerFactory.getLogger(AuctionDao.class);
 
-    private QueryRunner runner = new QueryRunner(DBUtils.getDataSource());
+    private static AuctionDao auctionDao;
+
+    private QueryRunner runner = DBUtils.getQueryRunner();
+
+    public static AuctionDao getInstance() {
+        return auctionDao == null ? auctionDao = new AuctionDao() : auctionDao;
+    }
 
     /**
      * 保存拍卖数据
@@ -127,5 +138,69 @@ public class AuctionDao {
         } finally {
             DbUtils.closeQuietly(con);
         }
+    }
+
+    /**
+     * 拷贝服务器当前最低一口价数据到历史表
+     * 不拷贝装笼宠物
+     * @param realm 服务器信息
+     * @throws SQLException 数据库异常
+     */
+    public void copyMinBuyoutToDaily(Realm realm) throws SQLException {
+        String tableName = "t_ah_min_buyout_data_"
+                + TimeUtils.getDate(realm.getLastModified()) + "_"
+                + realm.getId();
+        checkAndCreateMinBuyoutDailyTable(tableName);
+        runner.update(
+                "insert into "
+                        + tableName
+                        + " (item,owner,ownerRealm,bid,buyout,quantity,petSpeciesId,petBreedId,bonusLists,lastModifed) select item_id,owner,owner_realm,bid,buyout,quantity,pet_species_id,pet_breed_id,bonus_list,"
+                        + System.currentTimeMillis()
+                        + " from lowest_auction where realm_id=? and item_id != 82800",
+                realm.getId());
+    }
+
+    private void checkAndCreateMinBuyoutDailyTable(String tableName) throws SQLException {
+        if (!DBUtils.isTableExist(tableName)) {
+            StringBuffer sb = new StringBuffer();
+            sb.append("CREATE TABLE IF NOT EXISTS " + tableName + " (");
+            sb.append("id INT UNSIGNED NOT NULL AUTO_INCREMENT,");
+            sb.append("item INT UNSIGNED NOT NULL,");
+            sb.append("owner VARCHAR(12) NOT NULL,");
+            sb.append("ownerRealm VARCHAR(8) NOT NULL,");
+            sb.append("bid BIGINT UNSIGNED NOT NULL,");
+            sb.append("buyout BIGINT UNSIGNED NOT NULL,");
+            sb.append("quantity INT UNSIGNED NOT NULL,");
+            sb.append("petSpeciesId INT UNSIGNED NOT NULL,");
+            sb.append("petBreedId INT UNSIGNED NOT NULL,");
+            sb.append("bonusLists VARCHAR(20) NOT NULL,");
+            sb.append("lastModifed BIGINT UNSIGNED NOT NULL,");
+            sb.append("PRIMARY KEY(id)");
+            sb.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8");
+            runner.update(sb.toString());
+            runner.update("ALTER TABLE " + tableName + " ADD INDEX(item)");
+            logger.info("表{}未创建， 创建表和索引", tableName);
+        }
+    }
+
+    /**
+     * 获取当前所有服务器拍卖行的物品id
+     * @return 物品id，唯一
+     * @throws SQLException 数据库异常
+     */
+    public List<Integer> getItemIds() throws SQLException {
+        return runner.query(
+                "select distinct item_id from lowest_auction",
+                new ColumnListHandler<Integer>());
+    }
+
+    /**
+     * 获取拍卖行中所有的item bonus
+     * @return item bonus列表
+     */
+    public List<ItemBonus> findAllItemBonuses() throws SQLException {
+        return runner.query(
+                "select item_id as itemId,bonus_list as bonusList from lowest_auction a join item i on a.item_id=i.id where i.item_class in (2,3,4) and i.level >= 800 group by item_id,bonus_list",
+                new BeanListHandler<ItemBonus>(ItemBonus.class));
     }
 }

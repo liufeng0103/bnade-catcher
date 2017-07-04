@@ -7,7 +7,7 @@ public class Item {
 	private int itemClass;
 	private int itemSubClass;
 	private int inventoryType;
-	private int itemLevel;
+	private int level;
 	private int hot;
 
 	public int getId() {
@@ -58,12 +58,12 @@ public class Item {
 		this.inventoryType = inventoryType;
 	}
 
-	public int getItemLevel() {
-		return itemLevel;
+	public int getLevel() {
+		return level;
 	}
 
-	public void setItemLevel(int itemLevel) {
-		this.itemLevel = itemLevel;
+	public void setLevel(int level) {
+		this.level = level;
 	}
 
 	public int getHot() {
@@ -76,10 +76,15 @@ public class Item {
 
 	@Override
 	public String toString() {
-		return "Item [id=" + id + ", name=" + name + ", icon=" + icon
-				+ ", itemClass=" + itemClass + ", itemSubClass=" + itemSubClass
-				+ ", inventoryType=" + inventoryType + ", itemLevel="
-				+ itemLevel + ", hot=" + hot + "]";
+		return "Item{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				", icon='" + icon + '\'' +
+				", itemClass=" + itemClass +
+				", itemSubClass=" + itemSubClass +
+				", inventoryType=" + inventoryType +
+				", level=" + level +
+				", hot=" + hot +
+				'}';
 	}
-
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,7 @@ public class AuctionDao {
 
 	private static Logger logger = LoggerFactory.getLogger(AuctionDao.class);
 	
-	private QueryRunner runner = new QueryRunner(DBUtils.getDataSource());
+	private QueryRunner runner = DBUtils.getQueryRunner();
 	
 	// ---------------------------- t_ah_data_x ----------------------------
 	private static final String AUCTION_TABLE_PREFIX = "t_ah_data_";
@@ -199,5 +200,5 @@ public class AuctionDao {
 			DbUtils.closeQuietly(con);
 		}
 	}
-	
+
 }

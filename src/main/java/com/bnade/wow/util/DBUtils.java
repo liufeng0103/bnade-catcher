@@ -14,11 +14,13 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
+import org.apache.commons.dbutils.QueryRunner;
 
 public class DBUtils {
 	
 	private static String configFile = "jdbc.properties";
 	private static DataSource dataSource;
+	private static QueryRunner queryRunner;
 
 	public static DataSource getDataSource() {
 		if (dataSource == null) {
@@ -29,6 +31,14 @@ public class DBUtils {
 			}
 		}
 		return dataSource;
+	}
+
+	/**
+	 * 获取QueryRunner，单例
+	 * @return
+	 */
+	public static QueryRunner getQueryRunner() {
+		return queryRunner == null ? queryRunner = new QueryRunner(getDataSource()) : queryRunner;
 	}
 
 	private static Properties loadPropertyFile(String fileName) {

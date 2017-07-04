@@ -83,7 +83,7 @@ public class AuctionCatcher {
 			// 去除没有一口价的物品
 			if (auc.getBuyout() != 0) {
 				String key = "" + auc.getItemId() + "-" + auc.getPetSpeciesId() + "-" + auc.getPetBreedId() + "-" + auc.getBonusList();
-				// 计算单间物品的一口价
+				// 计算物品单价
 				long buyout = auc.getBuyout()/auc.getQuantity();
 				long bid = auc.getBid()/auc.getQuantity();
 				LowestAuction aucTmp = minBuyoutAucs.get(key);
@@ -190,9 +190,25 @@ public class AuctionCatcher {
 	 * @param auc 一条拍卖数据信息
 	 * @param minBuyoutAucs 保存所有最低一口价
 	 */
-	private static void processSpecialAuctions(Auction auc, Map<String, Auction> minBuyoutAucs) {
+	private static void processSpecialAuctions(Auction auc, Map<String, LowestAuction> minBuyoutAucs) {
 		if ((auc.getContext() == 3 || auc.getContext() == 5) && itemIds.contains(auc.getItemId())) {
-			minBuyoutAucs.put(auc.getItemId() + "_special_" + auc.getContext(), auc);
+			LowestAuction aucTmp = new LowestAuction();
+			aucTmp.setAuc(auc.getAuc());
+			aucTmp.setItemId(auc.getItemId());
+			aucTmp.setOwner(auc.getOwner());
+			aucTmp.setOwnerRealm(auc.getOwnerRealm());
+			aucTmp.setBid(auc.getBid());
+			aucTmp.setBuyout(auc.getBuyout()); // 这种装备都是单件卖 这里不用计算单价
+			aucTmp.setQuantity(auc.getQuantity());
+			aucTmp.setTotalQuantity(auc.getQuantity());
+			aucTmp.setTimeLeft(auc.getTimeLeft());
+			aucTmp.setPetSpeciesId(auc.getPetSpeciesId());
+			aucTmp.setPetBreedId(auc.getPetBreedId());
+			aucTmp.setContext(auc.getContext());
+			aucTmp.setPetLevel(auc.getPetLevel());
+			aucTmp.setBonusList(auc.getBonusList());
+			aucTmp.setRealmId(auc.getRealmId());
+			minBuyoutAucs.put(auc.getItemId() + "_special_" + auc.getContext(), aucTmp);
 			logger.debug("Add special={}", auc);
 		}
 	}
@@ -228,14 +244,14 @@ public class AuctionCatcher {
 		return aucs;
 	}
 
-	private static void processItemNotification(Realm realm, Map<String, Auction> aucs) throws SQLException {
+	private static void processItemNotification(Realm realm, Map<String, LowestAuction> aucs) throws SQLException {
 		UserDao userDao = DaoFactory.getUserDao();
 		List<UserItemNotification> itemNs = userDao.getItemNotificationsByRealmId(realm.getId());
 		Map<Integer, List<UserItemNotification>> matchedItems = new HashMap<>();
 		logger.info("找到{}条服务器{}的物品通知", itemNs.size(), realm.getId());
 		for (UserItemNotification itemN : itemNs) {
 			String key = "" + itemN.getItemId() + "-" + itemN.getPetSpeciesId() + "-" + itemN.getPetBreedId() + "-" + itemN.getBonusList();
-			Auction auc = aucs.get(key);
+			LowestAuction auc = aucs.get(key);
 			if (auc != null) {
 				if (itemN.getIsInverted() == 0) { // 低于
 					if (auc.getBuyout() <= itemN.getPrice()) {

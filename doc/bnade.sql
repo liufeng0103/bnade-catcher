@@ -1,5 +1,3 @@
-CREATE DATABASE bnade;
-
 USE bnade;
 
 -- 服务器信息表
@@ -74,3 +72,62 @@ ALTER TABLE lowest_auction ADD INDEX(item_id, pet_species_id);
 -- 删除某个服务器所有数据
 ALTER TABLE lowest_auction ADD INDEX(realm_id);
 
+-- 物品信息表
+DROP TABLE IF EXISTS item;
+CREATE TABLE IF NOT EXISTS item (
+	id	INT NOT NULL COMMENT '物品ID',
+	name VARCHAR(80) NOT NULL COMMENT '物品名',
+	icon VARCHAR(64) NOT NULL COMMENT '图标名',
+	item_class INT NOT NULL COMMENT '类型',
+	item_sub_class INT NOT NULL COMMENT '子类型',
+	inventory_type INT NOT NULL COMMENT '装备位置',
+	level INT NOT NULL COMMENT '物品等级',
+	hot INT NOT NULL DEFAULT 0 COMMENT '物品热度',
+	PRIMARY KEY(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品信息表';
+-- 物品查询时需要对物品名成做模糊查询
+-- MySQL5.7开始支持中文的全文检索
+-- 使用ngram插件为name列添加全文索引
+-- 分词大小请在MySQL的配置文件中设置，默认为2，ngram_token_size=1
+-- 搜索有集中模式，这是使用布尔全文搜索模式， SELECT * FROM item WHERE MATCH (name) AGAINST ('玫瑰' IN BOOLEAN MODE);
+alter table item add fulltext index ngram_idx(name) with parser ngram;
+
+-- 物品奖励表, 保存物品可能的所有bonus组合
+-- 这里不添加context信息，因为会出现不同context相同bonus_list,不利于相同装备合并统计
+DROP TABLE IF EXISTS item_bonus;
+CREATE TABLE IF NOT EXISTS item_bonus (
+	item_id INT NOT NULL COMMENT '物品ID',
+	bonus_list VARCHAR(20) NOT NULL COMMENT '装备奖励',
+	PRIMARY KEY(item_id,bonus_list)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品奖励表';
+
+-- 宠物信息表
+DROP TABLE IF EXISTS pet;
+CREATE TABLE IF NOT EXISTS pet (
+	id INT NOT NULL COMMENT '宠物ID',
+	name VARCHAR(16) NOT NULL COMMENT '宠物名',
+	icon VARCHAR(64) NOT NULL COMMENT '宠物图标',
+	hot INT NOT NULL DEFAULT 0 COMMENT '宠物热度',
+	PRIMARY KEY(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '宠物信息表';
+
+-- 宠物类型以及属性值
+DROP TABLE IF EXISTS pet_stats;
+CREATE TABLE IF NOT EXISTS pet_stats (
+	species_id INT NOT NULL COMMENT '宠物id',
+	breed_id INT NOT NULL COMMENT '成长类型',
+	pet_quality_id INT NOT NULL DEFAULT 3 COMMENT '品质,默认蓝色品质',
+	level INT NOT NULL DEFAULT 25 COMMENT '等级,默认25级',
+	health INT NOT NULL COMMENT '生命值',
+	power INT NOT NULL COMMENT '攻击力',
+	speed INT NOT NULL COMMENT '速度',
+	PRIMARY KEY(species_id,breed_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '宠物类型以及属性值表';
+
+-- 时光徽章表
+DROP TABLE IF EXISTS wow_token;
+CREATE TABLE IF NOT EXISTS wow_token (
+	updated BIGINT UNSIGNED NOT NULL COMMENT '更新时间',
+	buy INT UNSIGNED NOT NULL COMMENT '价格，单位G',
+	PRIMARY KEY(updated)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '时光徽章表';
