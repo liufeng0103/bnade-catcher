@@ -47,12 +47,12 @@ ALTER TABLE auction ADD INDEX(item_id);
 ALTER TABLE auction ADD INDEX(owner);
 
 -- 最低一口价拍卖数据表
-DROP TABLE IF EXISTS lowest_auction;
-CREATE TABLE IF NOT EXISTS lowest_auction (
+DROP TABLE IF EXISTS cheapest_auction;
+CREATE TABLE IF NOT EXISTS cheapest_auction (
     id BIGINT NOT NULL AUTO_INCREMENT COMMENT '自增ID，便于插入数据',
     auc INT NOT NULL COMMENT '拍卖ID',
     item_id INT NOT NULL COMMENT '物品ID',
-    owner VARCHAR(12) NOT NULL COMMENT '卖家',
+    owner VARCHAR(12) NOT NULL COMMENT '卖家',zzz
     owner_realm VARCHAR(8) NOT NULL COMMENT '卖家所在服务器',
     bid BIGINT NOT NULL COMMENT '竞价',
     buyout BIGINT NOT NULL COMMENT '一口价',
@@ -68,9 +68,9 @@ CREATE TABLE IF NOT EXISTS lowest_auction (
     PRIMARY KEY(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '最低一口价拍卖数据表';
 -- 查询物品在所有服务器的最低一口价
-ALTER TABLE lowest_auction ADD INDEX(item_id, pet_species_id);
+ALTER TABLE cheapest_auction ADD INDEX(item_id, pet_species_id);
 -- 删除某个服务器所有数据
-ALTER TABLE lowest_auction ADD INDEX(realm_id);
+ALTER TABLE cheapest_auction ADD INDEX(realm_id);
 
 -- 物品信息表
 DROP TABLE IF EXISTS item;

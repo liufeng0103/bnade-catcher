@@ -97,7 +97,7 @@ public class AuctionDao {
      * @throws SQLException 数据库异常
      */
     public void deleteLowestByRealmId(int realmId) throws SQLException {
-        runner.update("DELETE FROM lowest_auction where realm_id=?", realmId);
+        runner.update("DELETE FROM cheapest_auction where realm_id=?", realmId);
     }
 
     /**
@@ -131,7 +131,7 @@ public class AuctionDao {
                 params[i][14] = auc.getRealmId();
             }
             runner.batch(con,
-                    "insert into lowest_auction (auc,item_id,owner,owner_realm,bid,buyout,quantity,total_quantity,time_left,pet_species_id,pet_level,pet_breed_id,context,bonus_list,realm_id) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    "insert into cheapest_auction (auc,item_id,owner,owner_realm,bid,buyout,quantity,total_quantity,time_left,pet_species_id,pet_level,pet_breed_id,context,bonus_list,realm_id) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     params);
             con.commit();
             con.setAutoCommit(autoCommit);
@@ -156,7 +156,7 @@ public class AuctionDao {
                         + tableName
                         + " (item,owner,ownerRealm,bid,buyout,quantity,petSpeciesId,petBreedId,bonusLists,lastModifed) select item_id,owner,owner_realm,bid,buyout,quantity,pet_species_id,pet_breed_id,bonus_list,"
                         + System.currentTimeMillis()
-                        + " from lowest_auction where realm_id=? and item_id != 82800",
+                        + " from cheapest_auction where realm_id=? and item_id != 82800",
                 realm.getId());
     }
 
@@ -190,7 +190,7 @@ public class AuctionDao {
      */
     public List<Integer> getItemIds() throws SQLException {
         return runner.query(
-                "select distinct item_id from lowest_auction",
+                "select distinct item_id from cheapest_auction",
                 new ColumnListHandler<Integer>());
     }
 
@@ -200,7 +200,7 @@ public class AuctionDao {
      */
     public List<ItemBonus> findAllItemBonuses() throws SQLException {
         return runner.query(
-                "select item_id as itemId,bonus_list as bonusList from lowest_auction a join item i on a.item_id=i.id where i.item_class in (2,3,4) and i.level >= 800 group by item_id,bonus_list",
+                "select item_id as itemId,bonus_list as bonusList from cheapest_auction a join item i on a.item_id=i.id where i.item_class in (2,3,4) and i.level >= 800 group by item_id,bonus_list",
                 new BeanListHandler<ItemBonus>(ItemBonus.class));
     }
 }
