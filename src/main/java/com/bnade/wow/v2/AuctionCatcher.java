@@ -120,7 +120,9 @@ public class AuctionCatcher {
 						aucTmp.setTimeLeft(auc.getTimeLeft());
 						aucTmp.setContext(auc.getContext());
 						aucTmp.setPetLevel(auc.getPetLevel());
-					} else if (aucTmp.getBuyout()/10000 == buyout/10000) { // 把金币一样的放一起计算数量
+					}
+                    // 把金币一样的放一起计算数量，忽略银和铜
+					if (aucTmp.getBuyout()/10000 == buyout/10000) {
 						// 计算相同最低一口价的数量
 						aucTmp.setQuantity(auc.getQuantity() + aucTmp.getQuantity());
 					}
