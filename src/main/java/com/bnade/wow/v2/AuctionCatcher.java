@@ -116,16 +116,19 @@ public class AuctionCatcher {
 						aucTmp.setOwnerRealm(auc.getOwnerRealm());
 						aucTmp.setBid(bid);
 						aucTmp.setBuyout(buyout);
-						aucTmp.setQuantity(auc.getQuantity());
 						aucTmp.setTimeLeft(auc.getTimeLeft());
 						aucTmp.setContext(auc.getContext());
 						aucTmp.setPetLevel(auc.getPetLevel());
 					}
-                    // 把金币一样的放一起计算数量，忽略银和铜
-					if (aucTmp.getBuyout()/10000 == buyout/10000) {
+					// 计算最低价金币数一样的物品
+                    long oldGoldBuyout = aucTmp.getBuyout()/10000;
+					long newGoldBuyout = buyout/10000;
+					if (oldGoldBuyout > newGoldBuyout) { // 发现更低价，重置数量为当前拍卖数量
 						// 计算相同最低一口价的数量
-						aucTmp.setQuantity(auc.getQuantity() + aucTmp.getQuantity());
-					}
+                        aucTmp.setQuantity(auc.getQuantity());
+					} else if (oldGoldBuyout == newGoldBuyout) { // 金币数一样的物品数量相加
+                        aucTmp.setQuantity(aucTmp.getQuantity() + auc.getQuantity());
+                    }
 				}
 			}
 
