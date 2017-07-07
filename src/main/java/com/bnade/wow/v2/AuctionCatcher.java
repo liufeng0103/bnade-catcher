@@ -109,8 +109,19 @@ public class AuctionCatcher {
 				} else {
 					// 计算总数量
 					aucTmp.setTotalQuantity(auc.getQuantity() + aucTmp.getTotalQuantity());
+
+					// 计算最低价金币数一样的物品
+					long oldGoldBuyout = aucTmp.getBuyout()/10000; // 之前计算数量放到了下面， 发现aucTmp.getBuyout()被设置了新的价格导致每次数量计算都有问题
+					long newGoldBuyout = buyout/10000;
+					if (oldGoldBuyout > newGoldBuyout) { // 发现更低价，重置数量为当前拍卖数量
+						// 计算相同最低一口价的数量
+						aucTmp.setQuantity(auc.getQuantity());
+					} else if (oldGoldBuyout == newGoldBuyout) { // 金币数一样的物品数量相加
+						aucTmp.setQuantity(aucTmp.getQuantity() + auc.getQuantity());
+					}
+
+					// 更新最低一口价拍卖信息
 					if (aucTmp.getBuyout() > buyout) {
-						// 更新最低一口价拍卖信息
 						aucTmp.setAuc(auc.getAuc());
 						aucTmp.setOwner(auc.getOwner()); // 最低一口价可能多个卖家，这里只保存一个
 						aucTmp.setOwnerRealm(auc.getOwnerRealm());
@@ -120,15 +131,6 @@ public class AuctionCatcher {
 						aucTmp.setContext(auc.getContext());
 						aucTmp.setPetLevel(auc.getPetLevel());
 					}
-					// 计算最低价金币数一样的物品
-                    long oldGoldBuyout = aucTmp.getBuyout()/10000;
-					long newGoldBuyout = buyout/10000;
-					if (oldGoldBuyout > newGoldBuyout) { // 发现更低价，重置数量为当前拍卖数量
-						// 计算相同最低一口价的数量
-                        aucTmp.setQuantity(auc.getQuantity());
-					} else if (oldGoldBuyout == newGoldBuyout) { // 金币数一样的物品数量相加
-                        aucTmp.setQuantity(aucTmp.getQuantity() + auc.getQuantity());
-                    }
 				}
 			}
 
