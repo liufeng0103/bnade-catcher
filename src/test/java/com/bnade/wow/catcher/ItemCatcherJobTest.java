@@ -9,9 +9,21 @@ import static org.junit.Assert.*;
  */
 public class ItemCatcherJobTest {
 
+    private ItemCatcherJob itemCatcherJob = new ItemCatcherJob();
+
     @Test
     public void executeTest() throws Exception {
         new ItemCatcherJob().execute(null);
+    }
+
+    @Test
+    public void addNewItems() throws Exception {
+        itemCatcherJob.addNewItems();
+    }
+
+    @Test
+    public void addNewItemBonuses() throws Exception {
+        itemCatcherJob.addNewItemBonuses();
     }
 
 }

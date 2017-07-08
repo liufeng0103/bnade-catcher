@@ -90,7 +90,9 @@ CREATE TABLE IF NOT EXISTS item (
 -- 使用ngram插件为name列添加全文索引
 -- 分词大小请在MySQL的配置文件中设置，默认为2，ngram_token_size=1
 -- 搜索有集中模式，这是使用布尔全文搜索模式， SELECT * FROM item WHERE MATCH (name) AGAINST ('玫瑰' IN BOOLEAN MODE);
-alter table item add fulltext index ngram_idx(name) with parser ngram;
+ALTER TABLE item ADD FULLTEXT INDEX ngram_idx(name) WITH PARSER ngram;
+-- 通过物品名查询物品
+ALTER TABLE item ADD INDEX(name);
 
 -- 物品奖励表, 保存物品可能的所有bonus组合
 -- 这里不添加context信息，因为会出现不同context相同bonus_list,不利于相同装备合并统计

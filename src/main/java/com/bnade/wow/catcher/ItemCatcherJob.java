@@ -14,7 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 更新物品表
@@ -33,18 +36,19 @@ public class ItemCatcherJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-//        addNewItems();
+        addNewItems();
         addNewItemBonuses();
     }
 
     /**
      * 添加新物品到item表
      */
-    private void addNewItems() {
+     public void addNewItems() {
+        logger.info("开始更新新物品");
         try {
             List<Integer> itemIds = itemDao.getIds();
-            List<Integer> auctionItemIds = auctionDao.getItemIds();
             logger.info("现有物品数: {}", itemIds.size());
+            List<Integer> auctionItemIds = auctionDao.getItemIds();
             auctionItemIds.removeAll(itemIds);
             logger.info("发现新物品数: {}", auctionItemIds.size()); // 不更新宠物笼
             for (Integer itemId : auctionItemIds) {
@@ -52,12 +56,13 @@ public class ItemCatcherJob implements Job {
                     logger.info("不更新宠物笼: {}", itemId);
                     continue;
                 }
-                XItem xItem = null;
+                XItem xItem;
                 try {
                     xItem = WowHeadClient.getInstance().getItem(itemId);
                 } catch (WowHeadClientException e) {
                     e.printStackTrace();
                     logger.error("通过client获取物品{}信息失败: {}", itemId, e);
+                    continue;
                 }
                 if (xItem != null) {
                     Item item = new Item();
@@ -81,14 +86,55 @@ public class ItemCatcherJob implements Job {
     }
 
     /**
-     * 添加新的物品奖励信息到item_bonus库
+     * 添加新的物品奖励信息到item_bonus表
+     * 物品的bonus数据非常混乱， 自己总结了一下规则，尽量不把bonus表弄的很乱
+     * 1. 宠物(item_id = 82800)不需要
+     * 2. 只更新一下类型(class)
+     * 武器(2)
+     * 护甲(4)
+     * 宝石(3) 主要是圣物
+     * 3. 使用一个list保存那些确定不需要bonus
+     * 4. 注意有空bonus的添加
      */
-    private void addNewItemBonuses() {
+     public void addNewItemBonuses() {
+        logger.info("开始更新物品bonus list");
+        // 不需要bonus的物品
+        Set<Integer> ignoredItemIds = new HashSet<>();
+        ignoredItemIds.add(82800);  // 宠物笼
+        ignoredItemIds.add(146667); // 瑞苏的不竭勇气 橙装 - 护甲(class=2)
+        ignoredItemIds.add(146668); // 警戒栖木 - 护甲(class=2)
+        ignoredItemIds.add(146669); // 哨兵的永恒庇护所 - 护甲(class=2)
+        ignoredItemIds.add(146666); // 塞露布拉，暗夜的双子 - 护甲(class=2)
+        ignoredItemIds.add(128709); // 暗月套牌：地狱火 - 护甲(class=2)
+
         try {
             List<ItemBonus> itemBonuses = itemDao.findAllItemBonuses();
-            List<ItemBonus> auctionItemBonuses = auctionDao.findAllItemBonuses();
             logger.info("现有item bonus数: {}", itemBonuses.size());
+            List<ItemBonus> auctionItemBonuses = auctionDao.findAllItemBonuses();
+            // 去掉已经存在的
             auctionItemBonuses.removeAll(itemBonuses);
+
+            // 去掉不需要的item bonus
+            Iterator<ItemBonus> itemBonusIterator = auctionItemBonuses.iterator();
+            int emptyBonusListCount = 0;
+            while (itemBonusIterator.hasNext()) {
+                ItemBonus itemBonus = itemBonusIterator.next();
+                // 跳过不需要更新的物品
+                if (ignoredItemIds.contains(itemBonus.getItemId())) {
+                    logger.info("忽略物品{}的bonus更新", itemBonus.getItemId());
+                    itemBonusIterator.remove();
+                }
+                // 对空的bonusList处理， 只添加已经在item_bonus表里存在的item的空bonusList
+                else if ("".equals(itemBonus.getBonusList())) {
+                    if (itemDao.findItemBonusesByItemId(itemBonus.getItemId()).size() == 0) {
+                        emptyBonusListCount++;
+                        logger.debug("之前不存在该物品{}bonus list", itemBonus.getItemId());
+                        itemBonusIterator.remove();
+                    }
+                }
+            }
+            logger.info("bonus list为空且不需要更新的数量: {}", emptyBonusListCount);
+
             logger.info("发现新item bonus数: {}", auctionItemBonuses.size());
             for (ItemBonus itemBonus : auctionItemBonuses) {
                 itemDao.saveItemBonus(itemBonus);
@@ -97,6 +143,12 @@ public class ItemCatcherJob implements Job {
         } catch (SQLException e) {
             logger.error("数据库操作异常, {}", e);
         }
+    }
+
+    public static void main(String[] args) {
+        ItemCatcherJob itemCatcherJob = new ItemCatcherJob();
+        itemCatcherJob.addNewItems();
+        itemCatcherJob.addNewItemBonuses();
     }
 
 }

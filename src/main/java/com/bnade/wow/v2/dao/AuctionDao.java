@@ -195,12 +195,17 @@ public class AuctionDao {
     }
 
     /**
-     * 获取拍卖行中所有的item bonus
+     * 获取拍卖行中所有的item bonus,用来添加新的bonus
+     * 1. 宠物(item_id = 82800)不需要
+     * 2. 只更新一下类型(class)
+     * 武器(2)
+     * 护甲(4)
+     * 宝石(3) 主要是圣物
      * @return item bonus列表
      */
     public List<ItemBonus> findAllItemBonuses() throws SQLException {
         return runner.query(
-                "select item_id as itemId,bonus_list as bonusList from cheapest_auction a join item i on a.item_id=i.id where i.item_class in (2,3,4) and i.level >= 800 group by item_id,bonus_list",
+                "select a.item_id as itemId,a.bonus_list as bonusList,i.item_class as itemClass,i.level from cheapest_auction a join item i on a.item_id=i.id where i.item_class in (2,3,4) and i.level >= 800 group by item_id,bonus_list",
                 new BeanListHandler<ItemBonus>(ItemBonus.class));
     }
 }

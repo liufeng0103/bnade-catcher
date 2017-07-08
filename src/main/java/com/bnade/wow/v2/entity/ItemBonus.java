@@ -5,8 +5,11 @@ package com.bnade.wow.v2.entity;
  * Created by liufeng0103@163.com on 2017/6/30.
  */
 public class ItemBonus {
+    // itemId bonusList 作为唯一标识
     private Integer itemId;
     private String bonusList;
+    private Integer itemClass;
+    private Integer level;
 
     public Integer getItemId() {
         return itemId;
@@ -22,6 +25,22 @@ public class ItemBonus {
 
     public void setBonusList(String bonusList) {
         this.bonusList = bonusList;
+    }
+
+    public Integer getItemClass() {
+        return itemClass;
+    }
+
+    public void setItemClass(Integer itemClass) {
+        this.itemClass = itemClass;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
     }
 
     @Override

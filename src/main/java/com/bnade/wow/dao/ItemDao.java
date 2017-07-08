@@ -83,6 +83,18 @@ public class ItemDao {
     }
 
     /**
+     * 通过物品ID获取bonus list
+     * @param itemId 物品id
+     * @return item bonus列表
+     * @throws SQLException 数据库异常
+     */
+    public List<ItemBonus> findItemBonusesByItemId(Integer itemId) throws SQLException {
+        return runner.query(
+                "select item_id as itemId,bonus_list as bonusList from item_bonus where item_id=?",
+                new BeanListHandler<ItemBonus>(ItemBonus.class), itemId);
+    }
+
+    /**
      * 添加新的item bonus
      * @param itemBonus 物品奖励信息
      * @return 数据库更新的记录数
