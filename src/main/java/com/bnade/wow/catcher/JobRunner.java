@@ -1,5 +1,6 @@
 package com.bnade.wow.catcher;
 
+import com.bnade.wow.util.ConfigUtils;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ public class JobRunner {
                     .build();
             CronTrigger itemTrigger = TriggerBuilder.newTrigger()
                     .withIdentity("trigger1", "group1")
-                    .withSchedule(CronScheduleBuilder.cronSchedule("0 0 6 * * ?")) // 每天6点运行物品更新
+                    .withSchedule(CronScheduleBuilder.cronSchedule(ConfigUtils.getProperty("item_job.cron")))
                     .build();
             scheduler.scheduleJob(itemJob, itemTrigger);
             logger.info("{} Cron表达式：{}", itemJob.getKey(), itemTrigger.getCronExpression());
