@@ -53,7 +53,7 @@ public class JobRunner {
                     break;
                 } else {
                     try {
-                        logger.info("JobRunner检测,等待10s");
+                        logger.debug("JobRunner关闭检测,等待10s");
                         Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
