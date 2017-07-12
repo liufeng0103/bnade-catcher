@@ -30,7 +30,6 @@ public class JobRunner {
                     .withIdentity("itemTrigger", "group1")
                     .withSchedule(CronScheduleBuilder.cronSchedule(ConfigUtils.getProperty("item_job.cron")))
                     .build();
-            scheduler.scheduleJob(itemJob, itemTrigger);
             logger.info("{} Cron表达式：{}", itemJob.getKey(), itemTrigger.getCronExpression());
 
             // 物品搜索统计job
@@ -41,10 +40,11 @@ public class JobRunner {
                     .withIdentity("itemSeachStatisticTrigger", "group1")
                     .withSchedule(CronScheduleBuilder.cronSchedule(ConfigUtils.getProperty("item_search_statistic_job.cron")))
                     .build();
-            scheduler.scheduleJob(itemSeachStatisticJob, itemSeachStatisticTrigger);
             logger.info("{} Cron表达式：{}", itemSeachStatisticJob.getKey(), itemSeachStatisticTrigger.getCronExpression());
 
             scheduler.start();
+            scheduler.scheduleJob(itemJob, itemTrigger);
+            scheduler.scheduleJob(itemSeachStatisticJob, itemSeachStatisticTrigger);
 
             while (true) {
                 if (shutdown.exists()) {
