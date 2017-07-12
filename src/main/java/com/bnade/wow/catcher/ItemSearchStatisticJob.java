@@ -3,7 +3,6 @@ package com.bnade.wow.catcher;
 import com.bnade.wow.dao.ItemDao;
 import com.bnade.wow.entity.ItemSearchStatistic;
 import com.bnade.wow.util.RedisUtils;
-import com.bnade.wow.util.TimeUtils;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -12,7 +11,8 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 
 import java.sql.SQLException;
-import java.text.ParseException;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -38,14 +38,14 @@ public class ItemSearchStatisticJob implements Job {
             int itemId = Integer.valueOf(k);
             int searchCount = v;
             try {
-                long todayDateTime = TimeUtils.parse(TimeUtils.getDate(0)).getTime();
+                LocalDate localDate = LocalDate.now();
 
-                ItemSearchStatistic itemSearchStatistic = itemDao.findItemSearchStatisticByItemIdAndSearchDate(itemId, todayDateTime);
+                ItemSearchStatistic itemSearchStatistic = itemDao.findItemSearchStatisticByItemIdAndSearchDate(itemId, localDate);
                 if (itemSearchStatistic == null) {
                     itemSearchStatistic = new ItemSearchStatistic();
                     itemSearchStatistic.setItemId(itemId);
                     itemSearchStatistic.setSearchCount(searchCount);
-                    itemSearchStatistic.setSearchDate(todayDateTime);
+                    itemSearchStatistic.setSearchDate(new Date());
                     itemDao.saveItemSeachStatistic(itemSearchStatistic);
                     logger.info("添加 {}", itemSearchStatistic);
                 } else {
@@ -53,7 +53,7 @@ public class ItemSearchStatisticJob implements Job {
                     itemDao.updateItemSeachStatisticCount(itemSearchStatistic);
                     logger.info("更新 {}", itemSearchStatistic);
                 }
-            } catch (SQLException | ParseException e) {
+            } catch (SQLException e) {
                 logger.error("出错", e);
             }
         });

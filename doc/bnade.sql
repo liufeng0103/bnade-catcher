@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS item_search_statistic (
     id BIGINT NOT NULL AUTO_INCREMENT COMMENT '自增ID，便于插入数据',
 	item_id INT NOT NULL COMMENT '物品ID',
 	search_count INT NOT NULL COMMENT '搜索次数',
-	search_date BIGINT NOT NULL COMMENT '搜索日期',
+	search_date DATE NOT NULL COMMENT '搜索日期',
 	PRIMARY KEY(id),
     KEY(search_date, item_id),
     UNIQUE KEY(search_date, item_id)

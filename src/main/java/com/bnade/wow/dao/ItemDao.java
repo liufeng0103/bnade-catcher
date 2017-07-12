@@ -9,8 +9,12 @@ import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 
+import java.sql.Date;
 import java.sql.SQLException;
+
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 
 public class ItemDao {
 
@@ -140,7 +144,7 @@ public class ItemDao {
      * @return 物品搜索统计
      * @throws SQLException 数据库异常
      */
-    public ItemSearchStatistic findItemSearchStatisticByItemIdAndSearchDate(Integer itemId, Long search_date) throws SQLException {
+    public ItemSearchStatistic findItemSearchStatisticByItemIdAndSearchDate(Integer itemId, LocalDate search_date) throws SQLException {
         return runner.query(
                 "select item_id as itemId, search_count as searchCount, search_date as searchDate from item_search_statistic where item_id=? and search_date=?",
                 new BeanHandler<ItemSearchStatistic>(ItemSearchStatistic.class), itemId, search_date);

@@ -4,6 +4,7 @@ import com.bnade.wow.entity.Item;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,5 +44,11 @@ public class ItemDaoTest {
     @Test
     public void findAllItemBonusesTest() throws Exception {
         System.out.println(itemDao.findAllItemBonuses());
+    }
+
+    @Test
+    public void findItemSearchStatisticByItemIdAndSearchDateTest() throws Exception {
+        System.out.println(new java.sql.Date(new Date().getTime()));
+//        System.out.println(itemDao.findItemSearchStatisticByItemIdAndSearchDate(123, new Date()));
     }
 }
