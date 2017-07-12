@@ -103,6 +103,18 @@ CREATE TABLE IF NOT EXISTS item_bonus (
 	PRIMARY KEY(item_id,bonus_list)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品奖励表';
 
+-- 物品搜索统计表，保存物品每天被搜索的次数
+DROP TABLE IF EXISTS item_search_statistic;
+CREATE TABLE IF NOT EXISTS item_search_statistic (
+    id BIGINT NOT NULL AUTO_INCREMENT COMMENT '自增ID，便于插入数据',
+	item_id INT NOT NULL COMMENT '物品ID',
+	search_count INT NOT NULL COMMENT '搜索次数',
+	search_date BIGINT NOT NULL COMMENT '搜索日期',
+	PRIMARY KEY(id),
+    KEY(search_date, item_id),
+    UNIQUE KEY(search_date, item_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品搜索统计表';
+
 -- 宠物信息表
 DROP TABLE IF EXISTS pet;
 CREATE TABLE IF NOT EXISTS pet (

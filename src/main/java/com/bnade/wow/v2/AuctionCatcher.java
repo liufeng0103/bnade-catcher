@@ -347,7 +347,10 @@ public class AuctionCatcher {
 					while (true) {
 						if (!shutdown.exists()) {
 							try {
-								AuctionCatcher.process(RealmQueue.next());
+								long start = System.currentTimeMillis();
+								Realm realm = RealmQueue.next();
+								AuctionCatcher.process(realm);
+								logger.info("[{}]运行完毕用时{}s", realm.getName(), (System.currentTimeMillis() - start) / 1000);
 								Thread.sleep(1000);
 							} catch (SQLException e) {
 								String msg = e.getMessage();

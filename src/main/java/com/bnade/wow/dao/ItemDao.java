@@ -1,6 +1,7 @@
 package com.bnade.wow.dao;
 
 import com.bnade.wow.entity.Item;
+import com.bnade.wow.entity.ItemSearchStatistic;
 import com.bnade.wow.util.DBUtils;
 import com.bnade.wow.v2.entity.ItemBonus;
 import org.apache.commons.dbutils.QueryRunner;
@@ -104,6 +105,45 @@ public class ItemDao {
         return runner.update(
                 "insert into item_bonus (item_id,bonus_list) values(?,?)",
                 itemBonus.getItemId(), itemBonus.getBonusList());
+    }
+
+    /**
+     * 保存物品搜索统计
+     *
+     * @param itemSearchStatistic 参数
+     * @return 数据库更新的记录数
+     * @throws SQLException 数据库异常
+     */
+    public int saveItemSeachStatistic(ItemSearchStatistic itemSearchStatistic) throws SQLException {
+        return runner.update(
+                "insert into item_search_statistic (item_id, search_count, search_date) values (?,?,?)",
+                itemSearchStatistic.getItemId(), itemSearchStatistic.getSearchCount(), itemSearchStatistic.getSearchDate());
+    }
+
+    /**
+     * 更新物品搜索的次数
+     *
+     * @param itemSearchStatistic 物品搜索统计
+     * @return  数据库更新的记录数
+     * @throws SQLException 数据库异常
+     */
+    public int updateItemSeachStatisticCount(ItemSearchStatistic itemSearchStatistic) throws SQLException {
+        return runner.update(
+                "update item_search_statistic set search_count=? where item_id=? and search_date=?",
+                itemSearchStatistic.getSearchCount(), itemSearchStatistic.getItemId(), itemSearchStatistic.getSearchDate());
+    }
+
+    /**
+     * 通过物品id查询物品搜索统计
+     *
+     * @param itemId 物品id
+     * @return 物品搜索统计
+     * @throws SQLException 数据库异常
+     */
+    public ItemSearchStatistic findItemSearchStatisticByItemIdAndSearchDate(Integer itemId, Long search_date) throws SQLException {
+        return runner.query(
+                "select item_id as itemId, search_count as searchCount, search_date as searchDate from item_search_statistic where item_id=? and search_date=?",
+                new BeanHandler<ItemSearchStatistic>(ItemSearchStatistic.class), itemId, search_date);
     }
 
 }

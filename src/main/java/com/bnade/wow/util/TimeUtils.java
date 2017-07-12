@@ -7,8 +7,7 @@ import java.util.Date;
 
 public class TimeUtils {
 	
-	private static SimpleDateFormat sf = new SimpleDateFormat("yyyyMMdd");
-	private static SimpleDateFormat sf2 = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+	private static final String DATE_FORMAT = "yyyyMMdd";
 	
 	public static final long SECOND = 1000;
 	public static final long MINUTE = 60 * SECOND;
@@ -49,6 +48,7 @@ public class TimeUtils {
 	}
 	
 	public static String getDate2(long time) {
+		SimpleDateFormat sf2 = new SimpleDateFormat("yyyy-MM-dd hh:mm");
 		return sf2.format(time);
 	}
 	
@@ -56,7 +56,8 @@ public class TimeUtils {
 	 * 返回当天日期
 	 * @return
 	 */
-	public static String getDate() {		
+	public static String getDate() {
+		SimpleDateFormat sf = new SimpleDateFormat(DATE_FORMAT);
 		return sf.format(new Date());
 	}
 	
@@ -68,6 +69,7 @@ public class TimeUtils {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());
 		cal.add(Calendar.DATE, i);
+		SimpleDateFormat sf = new SimpleDateFormat(DATE_FORMAT);
 		return sf.format(cal.getTime());
 	}
 	
@@ -79,10 +81,12 @@ public class TimeUtils {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		cal.add(Calendar.DATE, i);
+		SimpleDateFormat sf = new SimpleDateFormat(DATE_FORMAT);
 		return sf.format(cal.getTime());
 	}
 	
 	public static String getDate(long time) {
+		SimpleDateFormat sf = new SimpleDateFormat(DATE_FORMAT);
 		return sf.format(time);
 	}
 	
@@ -104,7 +108,7 @@ public class TimeUtils {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());
 		cal.add(Calendar.MONTH, i);
-		return new SimpleDateFormat("yyyyMM").format(cal.getTime());
+		return new SimpleDateFormat(DATE_FORMAT).format(cal.getTime());
 	}
 
 	public static String getYearMonth(long time) {
@@ -112,6 +116,7 @@ public class TimeUtils {
 	}
 	
 	public static Date parse(String date) throws ParseException {
+		SimpleDateFormat sf = new SimpleDateFormat(DATE_FORMAT);
 		return sf.parse(date);			
 	}
 	

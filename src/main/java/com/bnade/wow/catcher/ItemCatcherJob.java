@@ -38,6 +38,8 @@ public class ItemCatcherJob implements Job {
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         addNewItems();
         addNewItemBonuses();
+        // 第二次用于更新空的bonusList
+        addNewItemBonuses();
     }
 
     /**

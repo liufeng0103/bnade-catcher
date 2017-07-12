@@ -27,11 +27,22 @@ public class JobRunner {
                     .withIdentity("itemJob", "group1")
                     .build();
             CronTrigger itemTrigger = TriggerBuilder.newTrigger()
-                    .withIdentity("trigger1", "group1")
+                    .withIdentity("itemTrigger", "group1")
                     .withSchedule(CronScheduleBuilder.cronSchedule(ConfigUtils.getProperty("item_job.cron")))
                     .build();
             scheduler.scheduleJob(itemJob, itemTrigger);
             logger.info("{} Cron表达式：{}", itemJob.getKey(), itemTrigger.getCronExpression());
+
+            // 物品搜索统计job
+            JobDetail itemSeachStatisticJob = JobBuilder.newJob(ItemSearchStatisticJob.class)
+                    .withIdentity("itemSeachStatisticJob", "group1")
+                    .build();
+            CronTrigger itemSeachStatisticTrigger = TriggerBuilder.newTrigger()
+                    .withIdentity("itemSeachStatisticTrigger", "group1")
+                    .withSchedule(CronScheduleBuilder.cronSchedule(ConfigUtils.getProperty("item_search_statistic_job.cron")))
+                    .build();
+            scheduler.scheduleJob(itemSeachStatisticJob, itemSeachStatisticTrigger);
+            logger.info("{} Cron表达式：{}", itemSeachStatisticJob.getKey(), itemSeachStatisticTrigger.getCronExpression());
 
             scheduler.start();
 
