@@ -25,16 +25,6 @@ public class JBonusList implements Comparable<JBonusList> {
 		return this.getBonusListId() - bonus.getBonusListId();
 	}
 	
-	/*
-	 * FB出品 567 725 史诗 566 710 英雄级别 565 带插槽 史诗 564 带插槽 英雄级别 563 带插槽 普通 562 战火 史诗
-	 * 561 战火 英雄级别 560 战火 普通
-	 * 
-	 * 制造业 164 某种此属性 531 532 548 549 不知道干啥的 620 705 6阶 武器 619 690 5阶 武器 594 675
-	 * 4阶 武器 559 660 3阶 武器 558 645 2阶 武器 525 630 1阶 武器
-	 * 
-	 * 529 530 531 532 533 534 535 536 537 538 不知道干啥的 618 715 6阶 护甲 617 700 5阶
-	 * 护甲 593 685 4阶 护甲 527 670 3阶 护甲 526 655 2阶 护甲 525 640 1阶 护甲
-	 */
 	public static List<Integer> bonusIds = new ArrayList<Integer>();
 	static {
 		// 护甲
@@ -59,68 +49,69 @@ public class JBonusList implements Comparable<JBonusList> {
 		bonusIds.add(565);
 		bonusIds.add(566);
 		bonusIds.add(567);
+		bonusIds.add(669); // 15
 		
-		bonusIds.add(1372);	// -100装等
-		bonusIds.add(1377);	// -95装等
-		bonusIds.add(1382);	// -90装等
-		bonusIds.add(1387);	// -85装等
-		bonusIds.add(1392);	// -80装等
-		bonusIds.add(1397);	// -75装等
-		bonusIds.add(1402);	// -70装等
-		bonusIds.add(1407);	// -65装等
-		bonusIds.add(1412);	// -60装等
-		bonusIds.add(1417);	// -55装等
-		bonusIds.add(1422);	// -50装等
-		bonusIds.add(1427);	// -45装等
-		bonusIds.add(1432);	// -40装等
-		bonusIds.add(1437);	// -35装等
-		bonusIds.add(1442);	// -30装等
-		bonusIds.add(1447);	// -25装等
-		bonusIds.add(1452);	// -20装等
-		bonusIds.add(1457);	// -15装等
-		bonusIds.add(1462);	// -10装等
-		bonusIds.add(1467);	// -5装等
-		bonusIds.add(1472);	// +0装等
-		bonusIds.add(1477);	// +5装等
-		bonusIds.add(1482);	// +10装等
-		bonusIds.add(1487);	// +15装等
-		bonusIds.add(1492);	// +20装等
-		bonusIds.add(1497);	// +25装等
-		bonusIds.add(1502);	// +30装等
-		bonusIds.add(1507);	// +35装等
-		bonusIds.add(1512);	// +40装等
-		bonusIds.add(1517);	// +45装等
-		bonusIds.add(1522);	// +50装等
-		bonusIds.add(1527);	// +55装等
-		bonusIds.add(1532);	// +60装等
-		bonusIds.add(1537);	// +65装等
-		bonusIds.add(1542);	// +70装等
-		bonusIds.add(1547);	// +75装等
-		bonusIds.add(1552);	// +80装等
-		bonusIds.add(1557);	// +85装等
-		bonusIds.add(1562);	// +90装等
-		bonusIds.add(1567);	// +95装等
-		bonusIds.add(1572);	// +100装等
-		bonusIds.add(1577);	// +105装等
-		bonusIds.add(1582);	// +110装等
-		bonusIds.add(1587);	// +115装等
-		bonusIds.add(1592);	// +120装等
-		bonusIds.add(1597);	// +125装等
-		bonusIds.add(1602);	// +130装等
-		bonusIds.add(1607);	// +135装等
-		bonusIds.add(1612);	// +140装等
-		bonusIds.add(1617);	// +145装等
-		bonusIds.add(1622);	// +150装等
-		bonusIds.add(1627);	// +155装等
-		bonusIds.add(1632);	// +160装等
-		bonusIds.add(1637);	// +165装等
-		bonusIds.add(1642);	// +170装等
-		bonusIds.add(1647);	// +175装等
-		bonusIds.add(1652);	// +180装等
-		bonusIds.add(1657);	// +185装等
-		bonusIds.add(1662);	// +190装等
-		bonusIds.add(1667);	// +195装等		
-		bonusIds.add(1672);	// +200装等
+		bonusIds.add(1372);	// -100
+		bonusIds.add(1377);	// -95
+		bonusIds.add(1382);	// -90
+		bonusIds.add(1387);	// -85
+		bonusIds.add(1392);	// -80
+		bonusIds.add(1397);	// -75
+		bonusIds.add(1402);	// -70
+		bonusIds.add(1407);	// -65
+		bonusIds.add(1412);	// -60
+		bonusIds.add(1417);	// -55
+		bonusIds.add(1422);	// -50
+		bonusIds.add(1427);	// -45
+		bonusIds.add(1432);	// -40
+		bonusIds.add(1437);	// -35
+		bonusIds.add(1442);	// -30
+		bonusIds.add(1447);	// -25
+		bonusIds.add(1452);	// -20
+		bonusIds.add(1457);	// -15
+		bonusIds.add(1462);	// -10
+		bonusIds.add(1467);	// -5
+		bonusIds.add(1472);	// +0
+		bonusIds.add(1477);	// +5
+		bonusIds.add(1482);	// +10
+		bonusIds.add(1487);	// +15
+		bonusIds.add(1492);	// +20
+		bonusIds.add(1497);	// +25
+		bonusIds.add(1502);	// +30
+		bonusIds.add(1507);	// +35
+		bonusIds.add(1512);	// +40
+		bonusIds.add(1517);	// +45
+		bonusIds.add(1522);	// +50
+		bonusIds.add(1527);	// +55
+		bonusIds.add(1532);	// +60
+		bonusIds.add(1537);	// +65
+		bonusIds.add(1542);	// +70
+		bonusIds.add(1547);	// +75
+		bonusIds.add(1552);	// +80
+		bonusIds.add(1557);	// +85
+		bonusIds.add(1562);	// +90
+		bonusIds.add(1567);	// +95
+		bonusIds.add(1572);	// +100
+		bonusIds.add(1577);	// +105
+		bonusIds.add(1582);	// +110
+		bonusIds.add(1587);	// +115
+		bonusIds.add(1592);	// +120
+		bonusIds.add(1597);	// +125
+		bonusIds.add(1602);	// +130
+		bonusIds.add(1607);	// +135
+		bonusIds.add(1612);	// +140
+		bonusIds.add(1617);	// +145
+		bonusIds.add(1622);	// +150
+		bonusIds.add(1627);	// +155
+		bonusIds.add(1632);	// +160
+		bonusIds.add(1637);	// +165
+		bonusIds.add(1642);	// +170
+		bonusIds.add(1647);	// +175
+		bonusIds.add(1652);	// +180
+		bonusIds.add(1657);	// +185
+		bonusIds.add(1662);	// +190
+		bonusIds.add(1667);	// +195		
+		bonusIds.add(1672);	// +200
 		
 		bonusIds.add(1808);	//棱彩插槽
 //		bonusIds.add(40);	//躲闪

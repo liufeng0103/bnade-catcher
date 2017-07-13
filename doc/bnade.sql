@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS item_bonus (
 -- 物品搜索统计表，保存物品每天被搜索的次数
 DROP TABLE IF EXISTS item_search_statistic;
 CREATE TABLE IF NOT EXISTS item_search_statistic (
-    id BIGINT NOT NULL AUTO_INCREMENT COMMENT '自增ID，便于插入数据',
+    id INT NOT NULL AUTO_INCREMENT COMMENT '自增ID，便于插入数据',
 	item_id INT NOT NULL COMMENT '物品ID',
 	search_count INT NOT NULL COMMENT '搜索次数',
 	search_date DATE NOT NULL COMMENT '搜索日期',
