@@ -1,7 +1,9 @@
 package com.bnade.wow.catcher.entity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class JBonusList implements Comparable<JBonusList> {
 
@@ -25,7 +27,7 @@ public class JBonusList implements Comparable<JBonusList> {
 		return this.getBonusListId() - bonus.getBonusListId();
 	}
 	
-	public static List<Integer> bonusIds = new ArrayList<Integer>();
+	public static Set<Integer> bonusIds = new HashSet<Integer>();
 	static {
 		// 护甲
 		bonusIds.add(525);

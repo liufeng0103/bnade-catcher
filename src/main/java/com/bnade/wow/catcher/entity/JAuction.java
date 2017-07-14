@@ -1,5 +1,7 @@
 package com.bnade.wow.catcher.entity;
 
+import com.bnade.wow.util.RedisUtils;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +26,6 @@ public class JAuction {
 
 	/**
 	 * 把BonusLists转化成String，且只显示自己关心的bonus
-	 * @param bonusLists
 	 * @return
 	 */
 	public String convertBonusListsToString() {
@@ -38,6 +39,9 @@ public class JAuction {
 						sb.append(",");
 					}
 					sb.append(b.getBonusListId());
+				} else {
+					// 保存那些还没有mapping的bonus，用于以后添加，防止漏掉重要的bonus
+					RedisUtils.getJedisInstace().sadd("bonuses", "" + b.getBonusListId());
 				}
 			}
 			result = sb.toString();
