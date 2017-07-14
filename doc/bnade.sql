@@ -94,6 +94,16 @@ ALTER TABLE item ADD FULLTEXT INDEX ngram_idx(name) WITH PARSER ngram;
 -- 通过物品名查询物品
 ALTER TABLE item ADD INDEX(name);
 
+-- 奖励表
+DROP TABLE IF EXISTS bonus;
+CREATE TABLE IF NOT EXISTS bonus (
+	id INT NOT NULL COMMENT 'id',
+	name VARCHAR(8) NOT NULL COMMENT '奖励名',
+	comment VARCHAR(80) NOT NULL DEFAULT '' COMMENT '说明',
+	PRIMARY KEY(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '奖励表';
+
+
 -- 物品奖励表, 保存物品可能的所有bonus组合
 -- 这里不添加context信息，因为会出现不同context相同bonus_list,不利于相同装备合并统计
 DROP TABLE IF EXISTS item_bonus;

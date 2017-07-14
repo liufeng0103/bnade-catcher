@@ -51,4 +51,9 @@ public class ItemDaoTest {
         System.out.println(new java.sql.Date(new Date().getTime()));
 //        System.out.println(itemDao.findItemSearchStatisticByItemIdAndSearchDate(123, new Date()));
     }
+
+    @Test
+    public void findAllBonusesTest() throws Exception {
+        System.out.println(itemDao.findAllBonuses());
+    }
 }

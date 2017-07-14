@@ -1,5 +1,6 @@
 package com.bnade.wow.dao;
 
+import com.bnade.wow.entity.Bonus;
 import com.bnade.wow.entity.Item;
 import com.bnade.wow.entity.ItemSearchStatistic;
 import com.bnade.wow.util.DBUtils;
@@ -150,4 +151,14 @@ public class ItemDao {
                 new BeanHandler<ItemSearchStatistic>(ItemSearchStatistic.class), itemId, search_date);
     }
 
+    /**
+     * 获取所有的bonus
+     * @return bonus列表
+     * @throws SQLException 数据库异常
+     */
+    public List<Bonus> findAllBonuses() throws SQLException {
+        return runner.query(
+                "select id, name, comment from bonus",
+                new BeanListHandler<Bonus>(Bonus.class));
+    }
 }

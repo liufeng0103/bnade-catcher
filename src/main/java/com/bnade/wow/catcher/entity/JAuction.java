@@ -1,11 +1,21 @@
 package com.bnade.wow.catcher.entity;
 
+import com.bnade.wow.dao.ItemDao;
+import com.bnade.wow.entity.Bonus;
 import com.bnade.wow.util.RedisUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class JAuction {
+
+	private static Logger logger = LoggerFactory.getLogger(JAuction.class);
+
 	private int auc;
 	private int item;
 	private String owner;
@@ -24,21 +34,46 @@ public class JAuction {
 	private int petQualityId;
 	private List<JBonusList> bonusLists;
 
+	private static Set<Integer> caredBonusIds;
+	private static Set<Integer> notCaredBonusIds;
+
 	/**
 	 * 把BonusLists转化成String，且只显示自己关心的bonus
-	 * @return
+	 * @return String
 	 */
 	public String convertBonusListsToString() {
+		// 获取数据库中定义的bonus
+		if (caredBonusIds == null) {
+			caredBonusIds = new HashSet<>();
+			notCaredBonusIds = new HashSet<>();
+			try {
+				List<Bonus> bonuses = ItemDao.getInstance().findAllBonuses();
+				for (Bonus bonus : bonuses) {
+					if (!"".equals(bonus.getName().trim())) {
+						caredBonusIds.add(bonus.getId());
+					} else {
+						notCaredBonusIds.add(bonus.getId());
+					}
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			logger.info("关心的bonus {}个", caredBonusIds.size());
+			logger.info("不关心的bonus {}个", notCaredBonusIds.size());
+		}
+
 		String result = "";
 		if (bonusLists != null && bonusLists.size() > 0) {
 			StringBuffer sb = new StringBuffer();
 			Collections.sort(bonusLists);
 			for (JBonusList b : bonusLists) {
-				if (JBonusList.bonusIds.contains(b.getBonusListId())) {
+				if (caredBonusIds.contains(b.getBonusListId())) {
 					if (sb.length() > 0) {
 						sb.append(",");
 					}
 					sb.append(b.getBonusListId());
+				} else if (notCaredBonusIds.contains(b.getBonusListId())) {
+					// 已定义了这些bonus id不需要区分，什么也不做
 				} else {
 					// 保存那些还没有mapping的bonus，用于以后添加，防止漏掉重要的bonus
 					RedisUtils.getJedisInstace().sadd("bonuses", item + "-" + b.getBonusListId());
