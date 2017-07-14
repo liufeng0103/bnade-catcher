@@ -56,4 +56,9 @@ public class ItemDaoTest {
     public void findAllBonusesTest() throws Exception {
         System.out.println(itemDao.findAllBonuses());
     }
+
+    @Test
+    public void findIdsGreaterThanTest() throws Exception {
+        System.out.println(itemDao.findIdsGreaterThan(147421));
+    }
 }

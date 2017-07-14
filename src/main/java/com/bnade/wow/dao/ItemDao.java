@@ -68,6 +68,20 @@ public class ItemDao {
     }
 
     /**
+     * 更新物品信息
+     * 目前只更新level， 有需要的以后修改这个更新
+     *
+     * @param item 物品信息
+     * @return 数据库更新的记录数
+     * @throws SQLException 数据库异常
+     */
+    public int update(Item item) throws SQLException {
+        return runner.update(
+                "update item set level=? where id=?",
+                item.getLevel(), item.getId());
+    }
+
+    /**
      * 通过ID删除某个物品
      * @param itemId 物品id
      * @return 更新数据库条数
@@ -160,5 +174,17 @@ public class ItemDao {
         return runner.query(
                 "select id, name, comment from bonus",
                 new BeanListHandler<Bonus>(Bonus.class));
+    }
+
+    /**
+     * 查询大于某个id的所有物品id
+     * @param id 物品id
+     * @return id列表
+     * @throws SQLException 数据库异常
+     */
+    public List<Integer> findIdsGreaterThan(Integer id) throws SQLException {
+        return runner.query(
+                "select id from item where id >= ?",
+                new ColumnListHandler<Integer>(), id);
     }
 }

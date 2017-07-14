@@ -150,10 +150,36 @@ public class ItemCatcherJob implements Job {
         }
     }
 
+    /**
+     * 刷新物品信息
+     * 由于每次版本更新，有些物品信息会被调整
+     * 只更新当前版本的物品信息
+     */
+    public void refreshItems() {
+        try {
+            // id为大于800等级的最小物品 select min(id) from item where level >=800
+            List<Integer> ids = itemDao.findIdsGreaterThan(123910);
+            logger.info("找到{}个id大于123910的物品", ids.size());
+            for (Integer id : ids) {
+                Item item = itemDao.getItemById(id);
+                XItem xItem = WowHeadClient.getInstance().getItem(id);
+                // 目前只更新level不同的物品
+                if (item.getLevel() != xItem.getLevel()) {
+                    logger.info("更新物品{} level为{}", item, xItem.getLevel());
+                    item.setLevel(xItem.getLevel());
+                    itemDao.update(item);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         ItemCatcherJob itemCatcherJob = new ItemCatcherJob();
         itemCatcherJob.addNewItems();
         itemCatcherJob.addNewItemBonuses();
+        itemCatcherJob.refreshItems();
     }
 
 }
