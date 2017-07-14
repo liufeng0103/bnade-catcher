@@ -103,10 +103,10 @@ public class ItemCatcherJob implements Job {
         // 不需要bonus的物品
         Set<Integer> ignoredItemIds = new HashSet<>();
         ignoredItemIds.add(82800);  // 宠物笼
-        ignoredItemIds.add(146667); // 瑞苏的不竭勇气 橙装 - 护甲(class=2)
-        ignoredItemIds.add(146668); // 警戒栖木 - 护甲(class=2)
-        ignoredItemIds.add(146669); // 哨兵的永恒庇护所 - 护甲(class=2)
-        ignoredItemIds.add(146666); // 塞露布拉，暗夜的双子 - 护甲(class=2)
+//        ignoredItemIds.add(146667); // 瑞苏的不竭勇气 橙装 - 护甲(class=2)
+//        ignoredItemIds.add(146668); // 警戒栖木 - 护甲(class=2)
+//        ignoredItemIds.add(146669); // 哨兵的永恒庇护所 - 护甲(class=2)
+//        ignoredItemIds.add(146666); // 塞露布拉，暗夜的双子 - 护甲(class=2)
 //        ignoredItemIds.add(128709); // 暗月套牌：地狱火
 //        ignoredItemIds.add(128705); // 暗月套牌：统御
 //        ignoredItemIds.add(128711); // 暗月套牌：不朽
