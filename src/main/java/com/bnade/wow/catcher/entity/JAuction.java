@@ -49,6 +49,7 @@ public class JAuction {
 			try {
 				List<Bonus> bonuses = ItemDao.getInstance().findAllBonuses();
 				for (Bonus bonus : bonuses) {
+					// 空的bonus name表示不需要区分的
 					if (!"".equals(bonus.getName().trim())) {
 						caredBonusIds.add(bonus.getId());
 					} else {
