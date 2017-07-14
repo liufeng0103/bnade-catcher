@@ -41,7 +41,7 @@ public class JAuction {
 					sb.append(b.getBonusListId());
 				} else {
 					// 保存那些还没有mapping的bonus，用于以后添加，防止漏掉重要的bonus
-					RedisUtils.getJedisInstace().sadd("bonuses", "" + b.getBonusListId());
+					RedisUtils.getJedisInstace().sadd("bonuses", item + "-" + b.getBonusListId());
 				}
 			}
 			result = sb.toString();
