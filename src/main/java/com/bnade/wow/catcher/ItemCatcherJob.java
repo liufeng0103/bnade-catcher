@@ -179,7 +179,11 @@ public class ItemCatcherJob implements Job {
         ItemCatcherJob itemCatcherJob = new ItemCatcherJob();
         itemCatcherJob.addNewItems();
         itemCatcherJob.addNewItemBonuses();
-        itemCatcherJob.refreshItems();
+        if (args != null && args.length > 0) {
+            if ("refresh".equalsIgnoreCase(args[0])) {
+                itemCatcherJob.refreshItems();
+            }
+        }
     }
 
 }
