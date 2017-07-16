@@ -1,0 +1,184 @@
+swagger: '2.0'
+info:
+  description: |
+    BNADE的API,欢迎开发者基于这些API开发自己的第三方应用，如果API无法满足你的要求，可以联系我扩展这些接口。本着开放原则，如果您使用这些API开发应用，请分享您的应用给更多人使用。
+  version: 1.0.0
+  title: BNADE API
+  contact:
+    email: liufeng0103@163.com
+host: api.bnade.com
+basePath: /
+tags:
+- name: items
+  description: 物品相关
+- name: cheapest-auctions
+  description: 最低一口价拍卖信息相关
+schemes:
+- https
+- http
+paths:
+  /items/{id}:
+    get:
+      tags:
+      - items
+      summary: 通过物品id查找物品信息
+      description: 返回一个物品信息
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        description: 物品id
+        required: true
+        type: integer
+        format: int32
+        default: 124442
+      responses:
+        200:
+          description: 操作成功
+          schema:
+            $ref: '#/definitions/Item'
+        400:
+          description: id不合法
+        404:
+          description: 物品信息找不到
+  /items:
+    get:
+      tags:
+      - items
+      summary: 通过物品名查询物品
+      description: 返回物品信息数组
+      produces:
+      - application/json
+      parameters:
+      - name: name
+        in: query
+        description: 物品名
+        required: true
+        type: string
+        default: 星光玫瑰
+      responses:
+        200:
+          description: 操作成功
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Item'
+        400:
+          description: 参数不合法
+        404:
+          description: 物品信息找不到
+  /items/names:
+    get:
+      tags:
+      - items
+      summary: 通过名称查询包含该物品名称的所有物品名
+      description: 返回物品名称数组
+      produces:
+      - application/json
+      parameters:
+      - name: search
+        in: query
+        description: 搜索名
+        required: true
+        type: string
+        default: 玫瑰
+      - name: limit
+        in: query
+        description: 返回记录数,如果不设值默认为10
+        required: false
+        type: integer
+        format: int32
+      responses:
+        200:
+          description: 操作成功
+          schema:
+            type: array
+            items:
+              type: string
+        400:
+          description: 参数不合法
+        404:
+          description: 物品名找不到
+  /cheapest-auctions:
+    get:
+      tags:
+      - cheapest-auctions
+      summary: 查询最低一口价拍卖信息
+      description: 输入合适的查询参数，将返回满足条件的所有服务器的最低一口价的拍卖记录
+      produces:
+      - application/json
+      parameters:
+      - name: itemId
+        in: query
+        description: 物品id
+        required: true
+        type: integer
+        format: int32
+        default: 147429
+      - name: bonusList
+        in: query
+        description: 物品奖励，不设置默认为空("")
+        required: false
+        type: string
+        default: 1527
+      responses:
+        200:
+          description: 操作成功
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/CheapestAuction'
+        400:
+          description: 参数不合法
+        404:
+          description: 最低一口价拍卖信息找不到
+definitions:
+  Item:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: 物品id
+      name:
+        type: string
+        description: 物品名
+      level:
+        type: integer
+        format: int32
+        description: 物品等级
+      bonusLists:
+        type: array
+        description: 物品拥有的奖励类型列表
+        items:
+          type: string
+  CheapestAuction:
+    type: object
+    properties:
+      buyout:
+        type: integer
+        format: int64
+        description: 一口价，单位铜
+      owner:
+        type: string
+        description: 卖家
+      ownerQuantity:
+        type: integer
+        format: int32
+        description: 服务器的卖家总数
+      quantity:
+        type: integer
+        format: int32
+        description: 最低价的拍卖物品数量
+      realmId:
+        type: integer
+        format: int32
+        description: 服务器id
+      timeLeft:
+        type: string
+        description: 剩余时间
+      totalQuantity:
+        type: integer
+        format: int32
+        description: 该物品的拍卖总数量
