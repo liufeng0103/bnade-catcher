@@ -205,7 +205,7 @@ public class AuctionDao {
      */
     public List<ItemBonus> findAllItemBonuses() throws SQLException {
         return runner.query(
-                "select a.item_id as itemId,a.bonus_list as bonusList,i.item_class as itemClass,i.level from cheapest_auction a join item i on a.item_id=i.id where i.item_class in (2,3,4) and i.level >= 800 group by item_id,bonus_list",
+                "select a.item_id as itemId,a.bonus_list as bonusList,i.item_class as itemClass,i.level from cheapest_auction a join item i on a.item_id=i.id where i.item_class in (2,3,4) and i.level >= 650 group by item_id,bonus_list",
                 new BeanListHandler<ItemBonus>(ItemBonus.class));
     }
 }
