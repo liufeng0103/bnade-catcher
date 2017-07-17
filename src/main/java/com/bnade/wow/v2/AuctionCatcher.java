@@ -151,6 +151,13 @@ public class AuctionCatcher {
 		long start;
 		AuctionDao auctionDao = new AuctionDao();
 
+		// 调查销量计算
+		if (realm.getId() == 72) {
+			List<Auction> preAuctions = auctionDao.findByRealmIdAndItemId(realm.getId(), 124442);
+			preAuctions.removeAll(aucs);
+			preAuctions.forEach((auction) -> System.out.println(auction));
+		}
+
 		// 保存拍卖数据
 //		logger.info("[{}]删除上一次拍卖行数据", realm.getName());
 //		auctionDao.deleteByRealmId(realm.getId());

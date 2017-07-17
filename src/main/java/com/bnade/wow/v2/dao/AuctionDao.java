@@ -34,6 +34,12 @@ public class AuctionDao {
         return auctionDao == null ? auctionDao = new AuctionDao() : auctionDao;
     }
 
+    public List<Auction> findByRealmIdAndItemId(Integer realmId, Integer itemId) throws SQLException {
+        return runner.query(
+                "select auc,item_id as itemId,owner,owner_realm as ownerRealm,bid,buyout,quantity,time_left as timeLeft,pet_species_id as petSpeciesId,pet_level as petLevel,pet_breed_id as petBreedId,context,bonus_list as bonusList,realm_id as realmId from auction where realm_id=? and item_id=?",
+                new BeanListHandler<Auction>(Auction.class), realmId, itemId);
+    }
+
     /**
      * 保存拍卖数据
      * @param aucs 拍卖数据

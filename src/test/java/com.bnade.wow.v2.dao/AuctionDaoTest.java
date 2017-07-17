@@ -27,4 +27,11 @@ public class AuctionDaoTest {
         System.out.println(itemBonuses.size());
     }
 
+    @Test
+    public void findByItemIdTest() throws Exception {
+        auctionDao.findByRealmIdAndItemId(1, 124442).forEach((auction) -> {
+            System.out.println(auction);
+        });
+    }
+
 }

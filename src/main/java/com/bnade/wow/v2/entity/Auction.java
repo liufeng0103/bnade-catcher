@@ -133,6 +133,21 @@ public class Auction {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Auction auction = (Auction) o;
+
+        return auc.equals(auction.auc);
+    }
+
+    @Override
+    public int hashCode() {
+        return auc.hashCode();
+    }
+
+    @Override
     public String toString() {
         return "Auction{" +
                 "auc=" + auc +
