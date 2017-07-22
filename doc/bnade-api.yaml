@@ -11,11 +11,14 @@ basePath: /
 tags:
 - name: items
   description: 物品相关
+- name: auctions
+  description: 拍卖信息相关
 - name: cheapest-auctions
   description: 最低一口价拍卖信息相关
+- name: realms
+  description: 服务器相关
 schemes:
 - https
-- http
 paths:
   /items/{id}:
     get:
@@ -100,6 +103,46 @@ paths:
           description: 参数不合法
         404:
           description: 物品名找不到
+  /auctions:
+    get:
+      tags:
+      - auctions
+      summary: 查询物品拍卖信息
+      description: 输入合适的查询参数，将返回满足条件的服务器的拍卖记录
+      produces:
+      - application/json
+      parameters:
+      - name: realmId
+        in: query
+        description: 服务器id
+        required: true
+        type: integer
+        format: int32
+        default: 80
+      - name: itemId
+        in: query
+        description: 物品id
+        required: true
+        type: integer
+        format: int32
+        default: 147429
+      - name: bonusList
+        in: query
+        description: 物品奖励，不设置默认为空("")
+        required: false
+        type: string
+        default: 1527
+      responses:
+        200:
+          description: 操作成功
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Auction'
+        400:
+          description: 参数不合法
+        404:
+          description: 拍卖数据找不到
   /cheapest-auctions:
     get:
       tags:
@@ -132,7 +175,24 @@ paths:
         400:
           description: 参数不合法
         404:
-          description: 最低一口价拍卖信息找不到
+          description: 最低一口价拍卖数据找不到
+  /realms:
+    get:
+      tags:
+      - realms
+      summary: 服务器拍卖相关信息
+      description: 返回各服务器拍卖相关的信息，包括拍卖总数，卖家总数，物品种类，更新时间等
+      produces:
+      - application/json
+      responses:
+        200:
+          description: 操作成功
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Realm'
+        404:
+          description: 服务器信息找不到
 definitions:
   Item:
     type: object
@@ -153,6 +213,41 @@ definitions:
         description: 物品拥有的奖励类型列表
         items:
           type: string
+  Auction:
+    type: object
+    properties:
+      itemId:
+        type: integer
+        format: int32
+        description: 物品id
+      bonusList:
+        type: string
+        description: 物品奖励
+      bid:
+        type: integer
+        format: int64
+        description: 竞价，单位铜
+      buyout:
+        type: integer
+        format: int64
+        description: 一口价，单位铜
+      owner:
+        type: string
+        description: 卖家
+      ownerRealm:
+        type: string
+        description: 卖家服务器
+      quantity:
+        type: integer
+        format: int32
+        description: 最低价的拍卖物品数量
+      timeLeft:
+        type: string
+        description: 剩余时间
+      realmId:
+        type: integer
+        format: int32
+        description: 服务器id
   CheapestAuction:
     type: object
     properties:
@@ -182,3 +277,33 @@ definitions:
         type: integer
         format: int32
         description: 该物品的拍卖总数量
+  Realm:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: 服务器id
+        type:
+          type: string
+          description: 服务器类型，pvp或pve
+        auctionQuantity:
+          type: integer
+          format: int32
+          description: 拍卖总数
+        ownerQuantity:
+          type: integer
+          format: int32
+          description: 卖家总数
+        itemQuantity:
+          type: integer
+          format: int32
+          description: 物品种类数
+        interval:
+          type: integer
+          format: int64
+          description: 更新间隔，单位ms
+        lastModified:
+          type: integer
+          format: int64
+          description: 数据更新时间，时间戳
