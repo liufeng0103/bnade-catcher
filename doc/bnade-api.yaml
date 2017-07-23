@@ -45,6 +45,38 @@ paths:
           description: id不合法
         404:
           description: 物品信息找不到
+  /items/{id}/tooltip:
+    get:
+      tags:
+      - items
+      summary: 通过物品id查找物品提示信息
+      description: 返回一个物品提示信息，格式为html片段
+      produces:
+      - text/plain
+      parameters:
+      - name: id
+        in: path
+        description: 物品id
+        required: true
+        type: integer
+        format: int32
+        default: 147429
+      - name: bonusList
+        in: query
+        description: 物品奖励
+        required: false
+        type: string
+        default: 1527
+      responses:
+        200:
+          description: 操作成功
+          schema:
+            type: string
+            description: 物品提示，格式为html片段
+        400:
+          description: 参数不合法
+        404:
+          description: 数据找不到
   /items:
     get:
       tags:
