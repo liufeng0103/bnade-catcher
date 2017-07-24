@@ -160,10 +160,10 @@ paths:
         default: 147429
       - name: bonusList
         in: query
-        description: 物品奖励，不设置默认为空("")
+        description: 物品奖励，不设置默认为空("")，设置all时查询所有bonusList类型
         required: false
         type: string
-        default: 1527
+        default: all
       responses:
         200:
           description: 操作成功
