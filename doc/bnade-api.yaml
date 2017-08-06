@@ -252,6 +252,16 @@ definitions:
         type: integer
         format: int32
         description: 物品id
+      itemName:
+        type: string
+        description: 物品名
+      itemLevel:
+        type: integer
+        format: int32
+        description: 物品等级
+      itemIcon:
+        type: string
+        description: 物品图标
       bonusList:
         type: string
         description: 物品奖励
@@ -276,10 +286,24 @@ definitions:
       timeLeft:
         type: string
         description: 剩余时间
-      realmId:
+      petSpeciesId:
         type: integer
         format: int32
-        description: 服务器id
+        description: 宠物id
+      petName:
+        type: string
+        description: 宠物名
+      petIcon:
+        type: string
+        description: 宠物图标
+      petLevel:
+        type: integer
+        format: int32
+        description: 宠物等级
+      petBreedId:
+        type: integer
+        format: int32
+        description: 宠物类型
   CheapestAuction:
     type: object
     properties:
