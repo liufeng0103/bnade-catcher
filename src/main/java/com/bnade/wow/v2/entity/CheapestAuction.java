@@ -4,7 +4,7 @@ package com.bnade.wow.v2.entity;
  * 最低一口价拍卖数据
  * Created by liufeng0103@163.com on 2017/6/11.
  */
-public class LowestAuction {
+public class CheapestAuction {
     private Long id;
     private Integer auc;
     private Integer itemId;
@@ -152,7 +152,7 @@ public class LowestAuction {
 
     @Override
     public String toString() {
-        return "LowestAuction{" +
+        return "CheapestAuction{" +
                 "id=" + id +
                 ", auc=" + auc +
                 ", itemId=" + itemId +

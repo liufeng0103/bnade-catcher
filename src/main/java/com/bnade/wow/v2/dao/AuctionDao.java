@@ -3,8 +3,8 @@ package com.bnade.wow.v2.dao;
 import com.bnade.wow.util.DBUtils;
 import com.bnade.wow.util.TimeUtils;
 import com.bnade.wow.v2.entity.Auction;
+import com.bnade.wow.v2.entity.CheapestAuction;
 import com.bnade.wow.v2.entity.ItemBonus;
-import com.bnade.wow.v2.entity.LowestAuction;
 import com.bnade.wow.v2.entity.Realm;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
@@ -111,7 +111,7 @@ public class AuctionDao {
      * @param aucs 拍卖数据
      * @throws SQLException 数据库异常
      */
-    public void saveLowest(List<LowestAuction> aucs) throws SQLException {
+    public void saveLowest(List<CheapestAuction> aucs) throws SQLException {
         Connection con = DBUtils.getDataSource().getConnection();
         try {
             boolean autoCommit = con.getAutoCommit();
@@ -119,7 +119,7 @@ public class AuctionDao {
 
             Object[][] params = new Object[aucs.size()][15];
             for (int i = 0; i < aucs.size(); i++) {
-                LowestAuction auc = aucs.get(i);
+                CheapestAuction auc = aucs.get(i);
                 params[i][0] = auc.getAuc();
                 params[i][1] = auc.getItemId();
                 params[i][2] = auc.getOwner();
@@ -213,5 +213,12 @@ public class AuctionDao {
         return runner.query(
                 "select a.item_id as itemId,a.bonus_list as bonusList,i.item_class as itemClass,i.level from cheapest_auction a join item i on a.item_id=i.id where i.item_class in (2,3,4) and i.level >= 600 group by item_id,bonus_list",
                 new BeanListHandler<ItemBonus>(ItemBonus.class));
+    }
+
+    public List<CheapestAuction> findCheapestAuctions(CheapestAuction auction) throws SQLException {
+        String sql = "select * from cheapest_auction where item_id=? and bonus_list=?";
+        return runner.query(
+                sql,
+                new BeanListHandler<CheapestAuction>(CheapestAuction.class), auction.getItemId(), auction.getBonusList());
     }
 }

@@ -2,18 +2,18 @@ package com.bnade.wow.v2;
 
 import com.bnade.wow.catcher.entity.JAuction;
 import com.bnade.wow.catcher.entity.JAuctions;
-import com.bnade.wow.v2.dao.AuctionDao;
 import com.bnade.wow.dao.DaoFactory;
 import com.bnade.wow.dao.UserDao;
-import com.bnade.wow.v2.dao.RealmDao;
-import com.bnade.wow.v2.entity.Auction;
-import com.bnade.wow.v2.entity.LowestAuction;
-import com.bnade.wow.v2.entity.Realm;
 import com.bnade.wow.entity.UserItemNotification;
 import com.bnade.wow.util.ConfigUtils;
 import com.bnade.wow.util.HttpUtils;
 import com.bnade.wow.util.MailUtils;
 import com.bnade.wow.util.TimeUtils;
+import com.bnade.wow.v2.dao.AuctionDao;
+import com.bnade.wow.v2.dao.RealmDao;
+import com.bnade.wow.v2.entity.Auction;
+import com.bnade.wow.v2.entity.CheapestAuction;
+import com.bnade.wow.v2.entity.Realm;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import org.slf4j.Logger;
@@ -69,7 +69,7 @@ public class AuctionCatcher {
 	 */
 	private static void processAuctions(Realm realm) throws SQLException, JsonSyntaxException, IOException {
 		List<Auction> aucs = getAuctions(realm);
-		Map<String, LowestAuction> minBuyoutAucs = new HashMap<>();
+		Map<String, CheapestAuction> minBuyoutAucs = new HashMap<>();
 		Set<String> owners = new HashSet<>();
 		int maxAuc = 0;
 		for (Auction auc : aucs) {
@@ -86,9 +86,9 @@ public class AuctionCatcher {
 				// 计算物品单价
 				long buyout = auc.getBuyout()/auc.getQuantity();
 				long bid = auc.getBid()/auc.getQuantity();
-				LowestAuction aucTmp = minBuyoutAucs.get(key);
+				CheapestAuction aucTmp = minBuyoutAucs.get(key);
 				if (aucTmp == null) {
-					aucTmp = new LowestAuction();
+					aucTmp = new CheapestAuction();
 					aucTmp.setAuc(auc.getAuc());
 					aucTmp.setItemId(auc.getItemId());
 					aucTmp.setOwner(auc.getOwner());
@@ -169,7 +169,7 @@ public class AuctionCatcher {
 		logger.info("[{}]删除拍卖行最低一口价数据", realm.getName());
 		auctionDao.deleteLowestByRealmId(realm.getId());
 		start = System.currentTimeMillis();
-		List<LowestAuction> minBuyoutAucList = new ArrayList<>(minBuyoutAucs.values());
+		List<CheapestAuction> minBuyoutAucList = new ArrayList<>(minBuyoutAucs.values());
 		auctionDao.saveLowest(minBuyoutAucList);
 		logger.info("[{}]保存{}条拍卖行最低一口价数据完毕,用时{}", realm.getName(), minBuyoutAucs.size(), TimeUtils.format(System.currentTimeMillis() - start));
 		
@@ -206,9 +206,9 @@ public class AuctionCatcher {
 	 * @param auc 一条拍卖数据信息
 	 * @param minBuyoutAucs 保存所有最低一口价
 	 */
-	private static void processSpecialAuctions(Auction auc, Map<String, LowestAuction> minBuyoutAucs) {
+	private static void processSpecialAuctions(Auction auc, Map<String, CheapestAuction> minBuyoutAucs) {
 		if ((auc.getContext() == 3 || auc.getContext() == 5) && itemIds.contains(auc.getItemId())) {
-			LowestAuction aucTmp = new LowestAuction();
+			CheapestAuction aucTmp = new CheapestAuction();
 			aucTmp.setAuc(auc.getAuc());
 			aucTmp.setItemId(auc.getItemId());
 			aucTmp.setOwner(auc.getOwner());
@@ -260,14 +260,14 @@ public class AuctionCatcher {
 		return aucs;
 	}
 
-	private static void processItemNotification(Realm realm, Map<String, LowestAuction> aucs) throws SQLException {
+	private static void processItemNotification(Realm realm, Map<String, CheapestAuction> aucs) throws SQLException {
 		UserDao userDao = DaoFactory.getUserDao();
 		List<UserItemNotification> itemNs = userDao.getItemNotificationsByRealmId(realm.getId());
 		Map<Integer, List<UserItemNotification>> matchedItems = new HashMap<>();
 		logger.info("找到{}条服务器{}的物品通知", itemNs.size(), realm.getId());
 		for (UserItemNotification itemN : itemNs) {
 			String key = "" + itemN.getItemId() + "-" + itemN.getPetSpeciesId() + "-" + itemN.getPetBreedId() + "-" + itemN.getBonusList();
-			LowestAuction auc = aucs.get(key);
+			CheapestAuction auc = aucs.get(key);
 			if (auc != null) {
 				if (itemN.getIsInverted() == 0) { // 低于
 					if (auc.getBuyout() <= itemN.getPrice()) {

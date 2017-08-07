@@ -1,6 +1,10 @@
 package com.bnade.wow.entity;
 
 public class Item {
+
+	// 宠物笼id
+	public static final int PET_CAGE_ID = 82800;
+
 	private int id;
 	private String name;
 	private String icon;
