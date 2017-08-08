@@ -216,7 +216,7 @@ public class AuctionDao {
     }
 
     public List<CheapestAuction> findCheapestAuctions(CheapestAuction auction) throws SQLException {
-        String sql = "select * from cheapest_auction where item_id=? and bonus_list=?";
+        String sql = "select item_id as itemId,owner,buyout,total_quantity as totalQuantity from cheapest_auction where item_id=? and bonus_list=?";
         return runner.query(
                 sql,
                 new BeanListHandler<CheapestAuction>(CheapestAuction.class), auction.getItemId(), auction.getBonusList());
