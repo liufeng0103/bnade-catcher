@@ -138,11 +138,12 @@ public class AuctionCatcher {
 
 		long start;
 		// 保存拍卖数据
+		start = System.currentTimeMillis();
 		AuctionDao auctionDao = DaoFactory.getAuctionDao();
-//		logger.info("[{}]删除上一次拍卖行数据", realm.getName());
-//		auctionDao.deleteAll(realm.getId());
-//		auctionDao.insert(realm.getId(), aucs);
-//		logger.info("[{}]保存{}条拍卖行数据完毕, 用时{}", realm.getName(), aucs.size(), TimeUtils.format(System.currentTimeMillis() - start));
+		logger.info("[{}]删除上一次拍卖行数据", realm.getName());
+		auctionDao.deleteAll(realm.getId());
+		auctionDao.insert(realm.getId(), aucs);
+		logger.info("[{}]保存{}条拍卖行数据完毕, 用时{}", realm.getName(), aucs.size(), TimeUtils.format(System.currentTimeMillis() - start));
 //
 		// 保存所有最低一口价数据
 		logger.info("[{}]删除拍卖行最低一口价数据", realm.getName());
