@@ -6,6 +6,7 @@ import com.bnade.wow.entity.ItemSearchStatistic;
 import com.bnade.wow.entity.ItemStatistic;
 import com.bnade.wow.util.DBUtils;
 import com.bnade.wow.v2.entity.ItemBonus;
+import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
@@ -135,38 +136,36 @@ public class ItemDao {
      * @throws SQLException
      */
     public ItemStatistic findItemStatistic(ItemStatistic itemStatistic) throws SQLException {
-        String sql = "select id,item_id as itemId, bonus_list as bonusList, pet_species_id as petSpeciesId, pet_breed_id as petBreedId, market_price as marketPrice, quantity,valid_time as validTime" +
-                " from item_statistic where item_id=? and bonus_list=?";
-        if (null != itemStatistic.getValidTime()) {
-            sql += " and valid_time=?";
-        }
-        return runner.query(sql, new BeanHandler<ItemStatistic>(ItemStatistic.class), itemStatistic.getItemId(), itemStatistic.getBonusList(), itemStatistic.getValidTime());
+        String sql = "select * from item_statistic where item_id=? and bonus_list=? and valid_time=?";
+        return runner.query(sql,
+                new BeanHandler<ItemStatistic>(ItemStatistic.class, new BasicRowProcessor(new MyBeanProcessor())),
+                itemStatistic.getItemId(), itemStatistic.getBonusList(), itemStatistic.getValidTime());
     }
 
     /**
      * 保存物品统计信息
      *
-     * @param itemStatistic
+     * @param i ItemStatistic
      * @return
      * @throws SQLException
      */
-    public int saveItemStatistic(ItemStatistic itemStatistic) throws SQLException {
+    public int saveItemStatistic(ItemStatistic i) throws SQLException {
         return runner.update(
-                "insert into item_statistic (item_id,bonus_list,pet_species_id,pet_breed_id, market_price,quantity,valid_time) values (?,?,?,?,?,?,?)",
-                itemStatistic.getItemId(), itemStatistic.getBonusList(), 0, 0, itemStatistic.getMarketPrice(), itemStatistic.getQuantity(), itemStatistic.getValidTime());
+                "insert into item_statistic (item_id,bonus_list,pet_species_id,pet_breed_id, market_price,quantity,realm_quantity,valid_realm_quantity,valid_time) values (?,?,?,?,?,?,?,?,?)",
+                i.getItemId(), i.getBonusList(), 0, 0, i.getMarketPrice(), i.getQuantity(), i.getRealmQuantity(), i.getValidRealmQuantity(), i.getValidTime());
     }
 
     /**
      * 更新最新的统计信息
      *
-     * @param itemStatistic
+     * @param i
      * @return
      * @throws SQLException
      */
-    public int updateItemStatistic(ItemStatistic itemStatistic) throws SQLException {
+    public int updateItemStatistic(ItemStatistic i) throws SQLException {
         return runner.update(
-                "update item_statistic set market_price=?,quantity=? where item_id=? and valid_time=?",
-                itemStatistic.getMarketPrice(), itemStatistic.getQuantity(), itemStatistic.getItemId(), itemStatistic.getValidTime());
+                "update item_statistic set market_price=?,quantity=?,realm_quantity=?,valid_realm_quantity=? where id=? and valid_time=?",
+                i.getMarketPrice(), i.getQuantity(), i.getRealmQuantity(), i.getValidRealmQuantity(), i.getId(), i.getValidTime());
     }
 
     /**

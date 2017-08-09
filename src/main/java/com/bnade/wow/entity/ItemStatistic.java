@@ -15,6 +15,8 @@ public class ItemStatistic {
     private Integer petBreedId;
     private Long marketPrice;
     private Integer quantity;
+    private Integer realmQuantity;
+    private Integer validRealmQuantity;
     private Timestamp validTime;
 
     public Integer getId() {
@@ -73,6 +75,22 @@ public class ItemStatistic {
         this.quantity = quantity;
     }
 
+    public Integer getRealmQuantity() {
+        return realmQuantity;
+    }
+
+    public void setRealmQuantity(Integer realmQuantity) {
+        this.realmQuantity = realmQuantity;
+    }
+
+    public Integer getValidRealmQuantity() {
+        return validRealmQuantity;
+    }
+
+    public void setValidRealmQuantity(Integer validRealmQuantity) {
+        this.validRealmQuantity = validRealmQuantity;
+    }
+
     public Timestamp getValidTime() {
         return validTime;
     }
@@ -91,6 +109,8 @@ public class ItemStatistic {
                 ", petBreedId=" + petBreedId +
                 ", marketPrice=" + marketPrice +
                 ", quantity=" + quantity +
+                ", realmQuantity=" + realmQuantity +
+                ", validRealmQuantity=" + validRealmQuantity +
                 ", validTime=" + validTime +
                 '}';
     }

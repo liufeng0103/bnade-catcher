@@ -33,18 +33,29 @@ public class JobRunner {
             logger.info("{} Cron表达式：{}", itemJob.getKey(), itemTrigger.getCronExpression());
 
             // 物品搜索统计job
-            JobDetail itemSeachStatisticJob = JobBuilder.newJob(ItemSearchStatisticJob.class)
-                    .withIdentity("itemSeachStatisticJob", "group1")
+            JobDetail itemSearchStatisticJob = JobBuilder.newJob(ItemSearchStatisticJob.class)
+                    .withIdentity("itemSearchStatisticJob", "group1")
                     .build();
             CronTrigger itemSeachStatisticTrigger = TriggerBuilder.newTrigger()
-                    .withIdentity("itemSeachStatisticTrigger", "group1")
+                    .withIdentity("itemSearchStatisticTrigger", "group1")
                     .withSchedule(CronScheduleBuilder.cronSchedule(ConfigUtils.getProperty("item_search_statistic_job.cron")))
                     .build();
-            logger.info("{} Cron表达式：{}", itemSeachStatisticJob.getKey(), itemSeachStatisticTrigger.getCronExpression());
+            logger.info("{} Cron表达式：{}", itemSearchStatisticJob.getKey(), itemSeachStatisticTrigger.getCronExpression());
+
+            // 物品统计job
+            JobDetail itemStatisticJob = JobBuilder.newJob(ItemStatisticJob.class)
+                    .withIdentity("itemStatisticJob", "group1")
+                    .build();
+            CronTrigger itemStatisticTrigger = TriggerBuilder.newTrigger()
+                    .withIdentity("itemStatisticTrigger", "group1")
+                    .withSchedule(CronScheduleBuilder.cronSchedule(ConfigUtils.getProperty("item_statistic_job.cron")))
+                    .build();
+            logger.info("{} Cron表达式：{}", itemStatisticJob.getKey(), itemStatisticTrigger.getCronExpression());
 
             scheduler.start();
             scheduler.scheduleJob(itemJob, itemTrigger);
-            scheduler.scheduleJob(itemSeachStatisticJob, itemSeachStatisticTrigger);
+            scheduler.scheduleJob(itemSearchStatisticJob, itemSeachStatisticTrigger);
+            scheduler.scheduleJob(itemStatisticJob, itemStatisticTrigger);
 
             while (true) {
                 if (shutdown.exists()) {
@@ -54,7 +65,7 @@ public class JobRunner {
                 } else {
                     try {
                         logger.debug("JobRunner关闭检测,等待10s");
-                        Thread.sleep(10000);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
