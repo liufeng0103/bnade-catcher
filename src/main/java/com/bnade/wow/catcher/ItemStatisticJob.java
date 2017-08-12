@@ -118,7 +118,7 @@ public class ItemStatisticJob implements Job {
                     selectItemStatistic.setValidTime(Timestamp.valueOf(LocalDateTime.of(9999, Month.DECEMBER, 31, 0, 0, 0)));
 //                logger.info("select {}", selectItemStatistic);
                     ItemStatistic itemStatistic = itemDao.findItemStatistic(selectItemStatistic);
-                logger.info("{}", itemStatistic);
+//                logger.info("{}", itemStatistic);
                     if (itemStatistic == null) { // 新数据
                         selectItemStatistic.setMarketPrice(marketPrice);
                         selectItemStatistic.setQuantity(quantitySum);
