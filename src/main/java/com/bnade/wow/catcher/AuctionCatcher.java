@@ -70,7 +70,7 @@ public class AuctionCatcher {
 	 * @throws IOException io异常
 	 * @throws JsonSyntaxException json处理异常
 	 */
-	private static void processAuctions(Realm realm) throws SQLException, JsonSyntaxException, IOException {
+	public static void processAuctions(Realm realm) throws SQLException, JsonSyntaxException, IOException {
 		List<Auction> aucs = getAuctions(realm);
 		Map<String, Auction> minBuyoutAucs = new HashMap<>();
 		int maxAuc = 0;
@@ -188,9 +188,11 @@ public class AuctionCatcher {
 	 * @param minBuyoutAucs 保存所有最低一口价
 	 */
 	private static void processSpecialAuctions(Auction auc, Map<String, Auction> minBuyoutAucs) {
-		if (auc.getContext() != 0 && "".equals(auc.getBonusLists()) && itemIds.contains(auc.getItem())) {
+		if (auc.getContext() != 0
+				&& "".equals(auc.getBonusLists())
+				&& itemIds.contains(auc.getItem())) {
 			minBuyoutAucs.put(auc.getItem() + "_special_" + auc.getContext(), auc);
-			logger.debug("Add special={}", auc);
+			logger.info("Add special={}", auc);
 		}
 	}
 
