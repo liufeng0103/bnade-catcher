@@ -14,6 +14,7 @@ public class ItemStatistic {
     private Integer petSpeciesId;
     private Integer petBreedId;
     private Long marketPrice;
+    private Long cheapestPrice;
     private Integer quantity;
     private Integer realmQuantity;
     private Integer validRealmQuantity;
@@ -67,6 +68,14 @@ public class ItemStatistic {
         this.marketPrice = marketPrice;
     }
 
+    public Long getCheapestPrice() {
+        return cheapestPrice;
+    }
+
+    public void setCheapestPrice(Long cheapestPrice) {
+        this.cheapestPrice = cheapestPrice;
+    }
+
     public Integer getQuantity() {
         return quantity;
     }
@@ -108,6 +117,7 @@ public class ItemStatistic {
                 ", petSpeciesId=" + petSpeciesId +
                 ", petBreedId=" + petBreedId +
                 ", marketPrice=" + marketPrice +
+                ", cheapestPrice=" + cheapestPrice +
                 ", quantity=" + quantity +
                 ", realmQuantity=" + realmQuantity +
                 ", validRealmQuantity=" + validRealmQuantity +

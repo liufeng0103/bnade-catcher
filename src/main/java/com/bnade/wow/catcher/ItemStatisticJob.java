@@ -100,11 +100,15 @@ public class ItemStatisticJob implements Job {
                     long marketPrice = calculatePrice(calculateAuctions);
 //                    logger.info("物品id：{} bonusList：{} 物品数：{} 服务器数：{} 市场价：{}", itemId, itemBonus.getBonusList(), quantitySum, calculateAuctions.size(), marketPrice);
 
+                    // 最低价
+                    long cheapestPrice = calculateAuctions.get(0).getBuyout();
+
                     // 保存为历史
                     ItemStatistic newItemStatistic = new ItemStatistic();
                     newItemStatistic.setItemId(itemId);
                     newItemStatistic.setBonusList(itemBonus.getBonusList());
                     newItemStatistic.setMarketPrice(marketPrice);
+                    newItemStatistic.setCheapestPrice(cheapestPrice);
                     newItemStatistic.setRealmQuantity(auctions.size());
                     newItemStatistic.setValidRealmQuantity(calculateAuctions.size());
                     newItemStatistic.setQuantity(quantitySum);
@@ -121,6 +125,7 @@ public class ItemStatisticJob implements Job {
 //                logger.info("{}", itemStatistic);
                     if (itemStatistic == null) { // 新数据
                         selectItemStatistic.setMarketPrice(marketPrice);
+                        selectItemStatistic.setCheapestPrice(cheapestPrice);
                         selectItemStatistic.setQuantity(quantitySum);
                         selectItemStatistic.setRealmQuantity(auctions.size());
                         selectItemStatistic.setValidRealmQuantity(calculateAuctions.size());
@@ -129,6 +134,7 @@ public class ItemStatisticJob implements Job {
                         if (calculateAuctions.size() >= 85 || marketPrice < itemStatistic.getMarketPrice()) {
                             logger.info("原服务器数{} 计算服务器数{} 当前价格{} 历史价格{}", auctions.size(), calculateAuctions.size(), marketPrice, itemStatistic.getMarketPrice());
                             itemStatistic.setMarketPrice(marketPrice);
+                            selectItemStatistic.setCheapestPrice(cheapestPrice);
                             itemStatistic.setQuantity(quantitySum);
                             itemStatistic.setRealmQuantity(auctions.size());
                             itemStatistic.setValidRealmQuantity(calculateAuctions.size());

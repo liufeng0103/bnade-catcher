@@ -122,6 +122,7 @@ CREATE TABLE IF NOT EXISTS item_statistic (
     pet_species_id INT NOT NULL COMMENT '宠物ID',
     pet_breed_id INT NOT NULL COMMENT '宠物类型',
 	market_price BIGINT NOT NULL COMMENT '市场价',
+	cheapest_price BIGINT NOT NULL COMMENT '最低价',
 	quantity INT NOT NULL COMMENT '物品数量',
 	realm_quantity INT NOT NULL COMMENT '服务器数量',
 	valid_realm_quantity INT NOT NULL COMMENT '有效的服务器数量',
@@ -130,6 +131,7 @@ CREATE TABLE IF NOT EXISTS item_statistic (
 	KEY(item_id,pet_species_id,valid_time), -- 获取物品9999-12-31的记录
 	KEY(valid_time) -- 对9999-12-31物品的查询
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品相关统计表';
+-- ALTER TABLE bnade.item_statistic ADD cheapest_price BIGINT DEFAULT 0 NOT NULL COMMENT '最低价';
 
 -- 物品搜索统计表，保存物品每天被搜索的次数
 DROP TABLE IF EXISTS item_search_statistic;

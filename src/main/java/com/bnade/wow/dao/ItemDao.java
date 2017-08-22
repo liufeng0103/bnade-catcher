@@ -151,8 +151,8 @@ public class ItemDao {
      */
     public int saveItemStatistic(ItemStatistic i) throws SQLException {
         return runner.update(
-                "insert into item_statistic (item_id,bonus_list,pet_species_id,pet_breed_id, market_price,quantity,realm_quantity,valid_realm_quantity,valid_time) values (?,?,?,?,?,?,?,?,?)",
-                i.getItemId(), i.getBonusList(), 0, 0, i.getMarketPrice(), i.getQuantity(), i.getRealmQuantity(), i.getValidRealmQuantity(), i.getValidTime());
+                "insert into item_statistic (item_id,bonus_list,pet_species_id,pet_breed_id, market_price,cheapest_price,quantity,realm_quantity,valid_realm_quantity,valid_time) values (?,?,?,?,?,?,?,?,?,?)",
+                i.getItemId(), i.getBonusList(), 0, 0, i.getMarketPrice(), i.getCheapestPrice(), i.getQuantity(), i.getRealmQuantity(), i.getValidRealmQuantity(), i.getValidTime());
     }
 
     /**
@@ -164,8 +164,8 @@ public class ItemDao {
      */
     public int updateItemStatistic(ItemStatistic i) throws SQLException {
         return runner.update(
-                "update item_statistic set market_price=?,quantity=?,realm_quantity=?,valid_realm_quantity=? where id=? and valid_time=?",
-                i.getMarketPrice(), i.getQuantity(), i.getRealmQuantity(), i.getValidRealmQuantity(), i.getId(), i.getValidTime());
+                "update item_statistic set market_price=?,cheapest_price=?,quantity=?,realm_quantity=?,valid_realm_quantity=? where id=? and valid_time=?",
+                i.getMarketPrice(), i.getCheapestPrice(), i.getQuantity(), i.getRealmQuantity(), i.getValidRealmQuantity(), i.getId(), i.getValidTime());
     }
 
     /**
