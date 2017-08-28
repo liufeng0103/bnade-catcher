@@ -134,7 +134,7 @@ public class ItemStatisticJob implements Job {
                         if (calculateAuctions.size() >= 85 || marketPrice < itemStatistic.getMarketPrice()) {
                             logger.info("原服务器数{} 计算服务器数{} 当前价格{} 历史价格{}", auctions.size(), calculateAuctions.size(), marketPrice, itemStatistic.getMarketPrice());
                             itemStatistic.setMarketPrice(marketPrice);
-                            selectItemStatistic.setCheapestPrice(cheapestPrice);
+                            itemStatistic.setCheapestPrice(cheapestPrice);
                             itemStatistic.setQuantity(quantitySum);
                             itemStatistic.setRealmQuantity(auctions.size());
                             itemStatistic.setValidRealmQuantity(calculateAuctions.size());
