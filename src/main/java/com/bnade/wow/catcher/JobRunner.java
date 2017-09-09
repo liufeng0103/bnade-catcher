@@ -42,6 +42,16 @@ public class JobRunner {
                     .build();
             logger.info("{} Cron表达式：{}", itemSearchStatisticJob.getKey(), itemSeachStatisticTrigger.getCronExpression());
 
+            // 物品搜索更新job
+            JobDetail itemHotRefreshJob = JobBuilder.newJob(ItemHotRefreshJob.class)
+                    .withIdentity("itemHotRefreshJob", "group1")
+                    .build();
+            CronTrigger itemHotRefreshTrigger = TriggerBuilder.newTrigger()
+                    .withIdentity("itemHotRefreshTrigger", "group1")
+                    .withSchedule(CronScheduleBuilder.cronSchedule(ConfigUtils.getProperty("item_hot_refresh_job.cron")))
+                    .build();
+            logger.info("{} Cron表达式：{}", itemHotRefreshJob.getKey(), itemHotRefreshTrigger.getCronExpression());
+
             // 物品统计job
             JobDetail itemStatisticJob = JobBuilder.newJob(ItemStatisticJob.class)
                     .withIdentity("itemStatisticJob", "group1")
@@ -56,6 +66,7 @@ public class JobRunner {
             scheduler.scheduleJob(itemJob, itemTrigger);
             scheduler.scheduleJob(itemSearchStatisticJob, itemSeachStatisticTrigger);
             scheduler.scheduleJob(itemStatisticJob, itemStatisticTrigger);
+            scheduler.scheduleJob(itemHotRefreshJob, itemHotRefreshTrigger);
 
             while (true) {
                 if (shutdown.exists()) {
