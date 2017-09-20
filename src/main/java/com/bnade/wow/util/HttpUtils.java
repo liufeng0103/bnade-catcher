@@ -73,6 +73,17 @@ public class HttpUtils {
 			}
 			result = IOUtils.toString(is, "utf-8");
 		} finally {
+			/*
+			According to http://docs.oracle.com/javase/6/docs/technotes/guides/net/http-keepalive.html and OpenJDK source code.
+
+			(When keepAlive == true)
+
+			If client called HttpURLConnection.getInputSteam().close(), the later call to HttpURLConnection.disconnect() will NOT close the Socket. i.e. The Socket is reused (cached)
+
+			If client does not call close(), call disconnect() will close the InputSteam and close the Socket.
+
+			So in order to reuse the Socket, just call InputStream close(). Do not call HttpURLConnection disconnect().
+			 */
 			if (is != null) {
 				is.close();
 			}
