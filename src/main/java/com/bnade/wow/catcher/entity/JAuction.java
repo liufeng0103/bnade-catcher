@@ -5,6 +5,7 @@ import com.bnade.wow.entity.Bonus;
 import com.bnade.wow.util.RedisUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -77,7 +78,9 @@ public class JAuction {
 					// 已定义了这些bonus id不需要区分，什么也不做
 				} else {
 					// 保存那些还没有mapping的bonus，用于以后添加，防止漏掉重要的bonus
-					RedisUtils.getJedisInstace().sadd("bonuses", item + "-" + b.getBonusListId());
+					try (Jedis jedis =RedisUtils.getJedisInstace()) {
+						jedis.sadd("bonuses", item + "-" + b.getBonusListId());
+					}
 				}
 			}
 			result = sb.toString();

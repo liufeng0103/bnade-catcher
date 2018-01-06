@@ -1,4 +1,4 @@
-package com.bnade.wow.catcher;
+package com.bnade.wow.job;
 
 import com.bnade.wow.dao.ItemDao;
 import com.bnade.wow.entity.ItemSearchStatistic;
@@ -70,23 +70,26 @@ public class ItemSearchStatisticJob implements Job {
      */
     public Map<String, Integer> getItemSearchCountMap() {
         Map<String, Integer> itemSearchCountMap = new HashMap<>();
-        Jedis jedis = RedisUtils.getJedisInstace();
-        // 所有ip
-        Set<String> keys = jedis.keys("ip*");
-        logger.info("有{}个ip", keys.size());
-        for (String key : keys) {
-            // ip查询的item ids
-            Set<String> ipItemIds = jedis.smembers(key);
-            for (String itemId : ipItemIds) {
-                Integer count = itemSearchCountMap.get(itemId);
-                if (count == null) {
-                    count = 1;
-                } else {
-                    count++;
+
+        try (Jedis jedis = RedisUtils.getJedisInstace();) {
+            // 所有ip
+            Set<String> keys = jedis.keys("ip*");
+            logger.info("有{}个ip", keys.size());
+            for (String key : keys) {
+                // ip查询的item ids
+                Set<String> ipItemIds = jedis.smembers(key);
+                for (String itemId : ipItemIds) {
+                    Integer count = itemSearchCountMap.get(itemId);
+                    if (count == null) {
+                        count = 1;
+                    } else {
+                        count++;
+                    }
+                    itemSearchCountMap.put(itemId, count);
                 }
-                itemSearchCountMap.put(itemId, count);
             }
         }
+
         return itemSearchCountMap;
     }
 
@@ -94,13 +97,14 @@ public class ItemSearchStatisticJob implements Job {
      * 清空redis中的统计信息
      */
     public void emptyItemSearchCountOnRedis() {
-        Jedis jedis = RedisUtils.getJedisInstace();
-        // 所有ip
-        Set<String> keys = jedis.keys("ip*");
-        for (String key : keys) {
-            // ip查询的item ids
-           jedis.del(key);
+        try (Jedis jedis = RedisUtils.getJedisInstace()) {
+            // 所有ip
+            Set<String> keys = jedis.keys("ip*");
+            for (String key : keys) {
+                // ip查询的item ids
+                jedis.del(key);
+            }
+            logger.info("所有ip*的key被删除");
         }
-        logger.info("所有ip*的key被删除");
     }
 }
