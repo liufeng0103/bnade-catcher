@@ -1,5 +1,6 @@
 package com.bnade.wow.catcher;
 
+import com.bnade.wow.job.*;
 import com.bnade.wow.util.ConfigUtils;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
@@ -62,11 +63,33 @@ public class JobRunner {
                     .build();
             logger.info("{} Cron表达式：{}", itemStatisticJob.getKey(), itemStatisticTrigger.getCronExpression());
 
+            // 拍卖数据归档job
+            JobDetail auctionArchiveJob = JobBuilder.newJob(AuctionArchiveJob.class)
+                    .withIdentity("auctionArchiveJob", "group1")
+                    .build();
+            CronTrigger auctionArchiveTrigger = TriggerBuilder.newTrigger()
+                    .withIdentity("auctionArchiveTrigger", "group1")
+                    .withSchedule(CronScheduleBuilder.cronSchedule(ConfigUtils.getProperty("auction_archive.cron")))
+                    .build();
+            logger.info("{} Cron表达式：{}", auctionArchiveJob.getKey(), auctionArchiveTrigger.getCronExpression());
+
+            // 时光徽章job
+            JobDetail wowtokenJob = JobBuilder.newJob(WowtokenCatcherJob.class)
+                    .withIdentity("wowtokenJob", "group1")
+                    .build();
+            CronTrigger wowtokenTrigger = TriggerBuilder.newTrigger()
+                    .withIdentity("wowtokenTrigger", "group1")
+                    .withSchedule(CronScheduleBuilder.cronSchedule(ConfigUtils.getProperty("wowtoken_catcher.cron")))
+                    .build();
+            logger.info("{} Cron表达式：{}", wowtokenJob.getKey(), wowtokenTrigger.getCronExpression());
+
             scheduler.start();
             scheduler.scheduleJob(itemJob, itemTrigger);
             scheduler.scheduleJob(itemSearchStatisticJob, itemSeachStatisticTrigger);
             scheduler.scheduleJob(itemStatisticJob, itemStatisticTrigger);
             scheduler.scheduleJob(itemHotRefreshJob, itemHotRefreshTrigger);
+            scheduler.scheduleJob(auctionArchiveJob, auctionArchiveTrigger);
+            scheduler.scheduleJob(wowtokenJob, wowtokenTrigger);
 
             while (true) {
                 if (shutdown.exists()) {

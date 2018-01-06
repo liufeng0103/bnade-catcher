@@ -72,6 +72,18 @@ ALTER TABLE cheapest_auction ADD INDEX(item_id, pet_species_id);
 -- 删除某个服务器所有数据
 ALTER TABLE cheapest_auction ADD INDEX(realm_id);
 
+-- 拍卖数据归档job状态表
+DROP TABLE IF EXISTS auction_archive_status;
+CREATE TABLE IF NOT EXISTS auction_archive_status (
+	id INT NOT NULL AUTO_INCREMENT COMMENT 'id',
+    realm_id INT NOT NULL COMMENT '服务器ID',
+    archive_date VARCHAR(10) NOT NULL COMMENT '归档日期',
+    status INT NOT NULL COMMENT '状态 1成功，0失败',
+    message VARCHAR(256) NOT NULL COMMENT '状态信息',
+	PRIMARY KEY(id),
+	KEY (realm_id, archive_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '拍卖数据归档job状态表';
+
 -- 物品信息表
 DROP TABLE IF EXISTS item;
 CREATE TABLE IF NOT EXISTS item (
@@ -169,8 +181,8 @@ CREATE TABLE IF NOT EXISTS pet_stats (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '宠物类型以及属性值表';
 
 -- 时光徽章表
-DROP TABLE IF EXISTS wow_token;
-CREATE TABLE IF NOT EXISTS wow_token (
+DROP TABLE IF EXISTS wowtoken;
+CREATE TABLE IF NOT EXISTS wowtoken (
 	updated BIGINT UNSIGNED NOT NULL COMMENT '更新时间',
 	buy INT UNSIGNED NOT NULL COMMENT '价格，单位G',
 	PRIMARY KEY(updated)
