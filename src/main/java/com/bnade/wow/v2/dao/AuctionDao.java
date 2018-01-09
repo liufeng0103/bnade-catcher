@@ -2,10 +2,7 @@ package com.bnade.wow.v2.dao;
 
 import com.bnade.wow.util.DBUtils;
 import com.bnade.wow.util.TimeUtils;
-import com.bnade.wow.v2.entity.Auction;
-import com.bnade.wow.v2.entity.CheapestAuction;
-import com.bnade.wow.v2.entity.ItemBonus;
-import com.bnade.wow.v2.entity.Realm;
+import com.bnade.wow.v2.entity.*;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;
@@ -152,39 +149,128 @@ public class AuctionDao {
      * @param realm 服务器信息
      * @throws SQLException 数据库异常
      */
-    public void copyMinBuyoutToDaily(Realm realm) throws SQLException {
-        String tableName = "t_ah_min_buyout_data_"
+    public void copyCheapestAuctionToDaily(Realm realm) throws SQLException {
+        String tableName = "cheapest_auction_"
                 + TimeUtils.getDate(realm.getLastModified()) + "_"
                 + realm.getId();
-        checkAndCreateMinBuyoutDailyTable(tableName);
+        checkAndCreateCheapestAuctionDailyTable(tableName);
         runner.update(
                 "insert into "
                         + tableName
-                        + " (item,owner,ownerRealm,bid,buyout,quantity,petSpeciesId,petBreedId,bonusLists,lastModifed) select item_id,owner,owner_realm,bid,buyout,quantity,pet_species_id,pet_breed_id,bonus_list,"
+                        + " (item_id,owner,owner_realm,bid,buyout,quantity,pet_species_id,pet_breed_id,bonus_list,last_modified) select item_id,owner,owner_realm,bid,buyout,quantity,pet_species_id,pet_breed_id,bonus_list,"
                         + System.currentTimeMillis()
                         + " from cheapest_auction where realm_id=? and item_id != 82800",
                 realm.getId());
     }
 
-    private void checkAndCreateMinBuyoutDailyTable(String tableName) throws SQLException {
+    private void checkAndCreateCheapestAuctionDailyTable(String tableName) throws SQLException {
         if (!DBUtils.isTableExist(tableName)) {
             StringBuffer sb = new StringBuffer();
             sb.append("CREATE TABLE IF NOT EXISTS " + tableName + " (");
             sb.append("id INT UNSIGNED NOT NULL AUTO_INCREMENT,");
-            sb.append("item INT UNSIGNED NOT NULL,");
+            sb.append("item_id INT UNSIGNED NOT NULL,");
             sb.append("owner VARCHAR(12) NOT NULL,");
-            sb.append("ownerRealm VARCHAR(8) NOT NULL,");
+            sb.append("owner_realm VARCHAR(8) NOT NULL,");
             sb.append("bid BIGINT UNSIGNED NOT NULL,");
             sb.append("buyout BIGINT UNSIGNED NOT NULL,");
             sb.append("quantity INT UNSIGNED NOT NULL,");
-            sb.append("petSpeciesId INT UNSIGNED NOT NULL,");
-            sb.append("petBreedId INT UNSIGNED NOT NULL,");
-            sb.append("bonusLists VARCHAR(20) NOT NULL,");
-            sb.append("lastModifed BIGINT UNSIGNED NOT NULL,");
+            sb.append("pet_species_id INT UNSIGNED NOT NULL,");
+            sb.append("pet_breed_id INT UNSIGNED NOT NULL,");
+            sb.append("bonus_list VARCHAR(20) NOT NULL,");
+            sb.append("last_modified BIGINT UNSIGNED NOT NULL,");
             sb.append("PRIMARY KEY(id)");
             sb.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8");
             runner.update(sb.toString());
-            runner.update("ALTER TABLE " + tableName + " ADD INDEX(item)");
+            runner.update("ALTER TABLE " + tableName + " ADD INDEX(item_id)");
+            logger.info("表{}未创建， 创建表和索引", tableName);
+        }
+    }
+
+    /**
+     * 查询服务器某天的所有历史数据
+     * @return
+     */
+    public List<CheapestAuctionDaily> findCheapestAuctionDailyByRealmIdAndDate(int realmId, String date) throws SQLException {
+        String tableName = "cheapest_auction_"
+                + date + "_"
+                + realmId;
+        return runner.query(
+                "select id,item_id as itemId,owner,owner_realm as ownerRealm,bid,buyout,quantity,pet_species_id as petSpeciesId,pet_breed_id as petBreedId,bonus_list as bonusList,last_modified as lastModified from "
+                + tableName,
+                new BeanListHandler<CheapestAuctionDaily>(CheapestAuctionDaily.class));
+    }
+
+    /**
+     * 删除某天的拍卖历史数据
+     * @param realmId
+     * @param date
+     * @throws SQLException
+     */
+    public void dropCheapestAuctionDaily(int realmId, String date) throws SQLException {
+        String tableName = "cheapest_auction_"
+                + date + "_"
+                + realmId;
+        if (DBUtils.isTableExist(tableName)) {
+            runner.update("drop table " + tableName);
+            logger.info("drop table {}", tableName);
+        } else {
+            logger.info("{} not exist", tableName);
+        }
+    }
+
+    /**
+     * 保存拍卖数据到每月归档表
+     * @param aucs
+     * @param realmId
+     * @param month
+     * @throws SQLException
+     */
+    public void saveCheapestAuctionMonthlies(List<CheapestAuctionMonthly> aucs, int realmId, String month) throws SQLException {
+        String tableName = "cheapest_auction_" + month + "_" + realmId;
+        checkAndCreateTable(tableName);
+        Connection con = DBUtils.getDataSource().getConnection();
+        try {
+            boolean autoCommit = con.getAutoCommit();
+            con.setAutoCommit(false);
+            Object[][] params = new Object[aucs.size()][7];
+            for (int i = 0; i < aucs.size(); i++) {
+                CheapestAuctionMonthly auc = aucs.get(i);
+                params[i][0] = auc.getItemId();
+                params[i][1] = auc.getBuyout();
+                params[i][2] = auc.getQuantity();
+                params[i][3] = auc.getPetSpeciesId();
+                params[i][4] = auc.getPetBreedId();
+                params[i][5] = auc.getBonusList();
+                params[i][6] = auc.getLastModified();
+            }
+            runner.batch(con, "insert into "
+                            + tableName
+                            + " (item_id,buyout,quantity,pet_species_id,pet_breed_id,bonus_list,last_modified) values(?,?,?,?,?,?,?)",
+                    params);
+            con.commit();
+            con.setAutoCommit(autoCommit);
+        } finally {
+            DbUtils.closeQuietly(con);
+        }
+    }
+
+    private void checkAndCreateTable(String tableName) throws SQLException {
+        logger.debug("检查表{}是否存在", tableName);
+        if (!DBUtils.isTableExist(tableName)) {
+            StringBuffer sb = new StringBuffer();
+            sb.append("CREATE TABLE IF NOT EXISTS " + tableName + " (");
+            sb.append("id INT UNSIGNED NOT NULL AUTO_INCREMENT,");
+            sb.append("item_id INT UNSIGNED NOT NULL,");
+            sb.append("buyout BIGINT UNSIGNED NOT NULL,");
+            sb.append("quantity INT UNSIGNED NOT NULL,");
+            sb.append("pet_species_id INT UNSIGNED NOT NULL,");
+            sb.append("pet_breed_id INT UNSIGNED NOT NULL,");
+            sb.append("bonus_list VARCHAR(20) NOT NULL,");
+            sb.append("last_modified BIGINT UNSIGNED NOT NULL,");
+            sb.append("PRIMARY KEY(id)");
+            sb.append(") ENGINE=InnoDB DEFAULT CHARSET=utf8");
+            runner.update(sb.toString());
+            runner.update("ALTER TABLE " + tableName + " ADD INDEX(item_id)");
             logger.info("表{}未创建， 创建表和索引", tableName);
         }
     }

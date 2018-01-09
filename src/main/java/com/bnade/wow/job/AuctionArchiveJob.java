@@ -84,15 +84,19 @@ public class AuctionArchiveJob implements Job {
 		addInfo("完毕,用时{}", TimeUtils.format(System.currentTimeMillis() - start));
 	}
 
-	public void clean(Realm realm, String handleDate) throws SQLException {
+	public void clean(Realm realm, String handleDate)  {
 		logHeader = "服务器[" + realm.getName() + "-" + realm.getId() + "]";
 		AuctionArchiveStatus auctionArchiveStatus = new AuctionArchiveStatus(realm.getId(), handleDate, AuctionArchiveStatus.STATUS_SUCCESS, "");
-		if(auctionArchiveStatusDao.findOne(auctionArchiveStatus) != null) {
-			addInfo("开始删除{}的集合", handleDate);
-			auctionDao.dropCheapestAuctionDaily(realm.getId(), handleDate);
-			addInfo("删除{}的集合完毕", handleDate);
-		} else {
-			addInfo("未归档过{}的数据或数据不存在", handleDate);
+		try {
+			if(auctionArchiveStatusDao.findOne(auctionArchiveStatus) != null) {
+                addInfo("开始删除{}的集合", handleDate);
+                auctionDao.dropCheapestAuctionDaily(realm.getId(), handleDate);
+                addInfo("删除{}的集合完毕", handleDate);
+            } else {
+                addInfo("未归档过{}的数据或数据不存在", handleDate);
+            }
+		} catch (SQLException e) {
+			addInfo("数据库操作错误:{}", e.getMessage());
 		}
 	}
 
