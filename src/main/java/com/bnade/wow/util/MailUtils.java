@@ -15,6 +15,7 @@ public class MailUtils {
 	private final static String EMAIL_HOSTNAME = ConfigUtils.getProperty("email_hostname");
 	private final static String EMAIL_USERNAME = ConfigUtils.getProperty("email_username");
 	private final static String EMAIL_PASSWORD = ConfigUtils.getProperty("email_password");
+	private final static int EMAIL_PORT = Integer.valueOf(ConfigUtils.getProperty("email_port"));
 	private final static String EMAIL_NAME = ConfigUtils.getProperty("email_name");
 	private final static String EMAIL_FROM = ConfigUtils.getProperty("email_from");
 	private final static boolean EMAIL_IS_SSL = "true".equalsIgnoreCase(ConfigUtils.getProperty("email_is_ssl"));
@@ -23,7 +24,7 @@ public class MailUtils {
 		try {
 			HtmlEmail email = new HtmlEmail();
 			email.setHostName(EMAIL_HOSTNAME);
-			email.setSmtpPort(465);
+			email.setSmtpPort(EMAIL_PORT);
 			email.setAuthenticator(new DefaultAuthenticator(EMAIL_USERNAME, EMAIL_PASSWORD));
 			email.setSSLOnConnect(EMAIL_IS_SSL);
 			email.setFrom(EMAIL_FROM, EMAIL_NAME);
@@ -46,6 +47,7 @@ public class MailUtils {
 			email.setAuthenticator(new DefaultAuthenticator(EMAIL_USERNAME, EMAIL_PASSWORD));
 			email.setSSLOnConnect(EMAIL_IS_SSL);
 			email.setFrom(EMAIL_FROM, EMAIL_NAME);
+			email.setSmtpPort(EMAIL_PORT);
 			email.setSubject(subject);
 			email.setMsg(msg);
 			email.addTo(to);

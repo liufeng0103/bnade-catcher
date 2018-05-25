@@ -16,7 +16,7 @@ public class UserDao {
 	public List<UserItemNotification> getItemNotificationsByRealmId(int realmId)
 			throws SQLException {
 		return run
-				.query("select userId,realmId,itemId,petSpeciesId,petBreedId,bonusList,i.name as itemName,i.itemLevel,email,isInverted,price from t_user_item_notification n join t_user u on n.userId=u.id join t_item i on i.id=n.itemId where (n.realmId=? or n.realmId=0) and n.itemId!=82800 and n.emailNotification=1 and u.validated=1"
+				.query("select userId,realmId,itemId,petSpeciesId,petBreedId,bonusList,i.name as itemName,i.level as itemLevel,email,isInverted,price from t_user_item_notification n join t_user u on n.userId=u.id join item i on i.id=n.itemId where (n.realmId=? or n.realmId=0) and n.itemId!=82800 and n.emailNotification=1 and u.validated=1"
 						+ " union all select userId,realmId,82800,petSpeciesId,petBreedId,bonusList,p.name as itemName,0 as itemLevel,email,isInverted,price from t_user_item_notification n join t_user u on n.userId=u.id join t_pet p on p.id=n.petSpeciesId where (n.realmId=? or n.realmId=0) and n.itemId=82800 and n.emailNotification=1 and u.validated=1",
 						new BeanListHandler<UserItemNotification>(
 								UserItemNotification.class), realmId, realmId);

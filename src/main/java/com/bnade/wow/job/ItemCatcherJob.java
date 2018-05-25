@@ -1,4 +1,4 @@
-package com.bnade.wow.catcher;
+package com.bnade.wow.job;
 
 import com.bnade.wow.client.WowHeadClient;
 import com.bnade.wow.client.WowHeadClientException;
@@ -85,6 +85,26 @@ public class ItemCatcherJob implements Job {
             e.printStackTrace();
             logger.error("数据库操作异常, {}", e);
         }
+    }
+
+    public void addItem(int id) {
+        XItem xItem = WowHeadClient.getInstance().getItem(id);
+        Item item = new Item();
+        item.setId(id);
+        item.setName(xItem.getName());
+        item.setIcon(xItem.getIcon());
+        item.setItemClass(xItem.getItemClass().getId());
+        item.setItemSubClass(xItem.getSubclass().getId());
+        item.setInventoryType(xItem.getInventorySlot().getId());
+        item.setLevel(xItem.getLevel());
+        try {
+            itemDao.save(item);
+            logger.info("成功添加新物品: {}", item);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.info("获取物品: {} 失败", id);
+        }
+
     }
 
     /**

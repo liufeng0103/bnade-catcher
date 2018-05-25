@@ -1,4 +1,4 @@
-package com.bnade.wow.catcher;
+package com.bnade.wow.job;
 
 import com.bnade.wow.entity.ItemSearchStatistic;
 import com.bnade.wow.util.DBUtils;

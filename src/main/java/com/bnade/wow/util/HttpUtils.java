@@ -62,7 +62,8 @@ public class HttpUtils {
 			conn.setReadTimeout(5000);
 			// Request Headers
 			conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-			conn.setRequestProperty("Accept-Encoding", "gzip, deflate, sdch, br");
+//			conn.setRequestProperty("Accept-Encoding", "gzip, deflate, sdch, br");
+			conn.setRequestProperty("Accept-Encoding", "gzip"); // 目前支持gzip
 			conn.setRequestProperty("Accept-Language", "en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4");
 			conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
 			// 查看Response Headers是否通过gzip压缩

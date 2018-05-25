@@ -1,10 +1,9 @@
 package com.bnade.wow.catcher;
 
+import com.bnade.wow.job.ItemSearchStatisticJob;
 import com.bnade.wow.util.RedisUtils;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by liufeng0103@163.com on 2017/7/12.
@@ -27,9 +26,9 @@ public class ItemSearchStatisticJobTest {
 
     @Test
     public void executeTest() throws Exception {
-        itemSearchStatisticJob.emptyItemSearchCountOnRedis();
-        prepareTestData();
-        itemSearchStatisticJob.execute(null);
+//        itemSearchStatisticJob.emptyItemSearchCountOnRedis();
+//        prepareTestData();
+//        itemSearchStatisticJob.execute(null);
     }
 
     private void prepareTestData() {

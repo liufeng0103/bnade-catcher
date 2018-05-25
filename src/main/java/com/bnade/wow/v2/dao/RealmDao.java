@@ -4,6 +4,7 @@ package com.bnade.wow.v2.dao;
 import com.bnade.wow.util.DBUtils;
 import com.bnade.wow.v2.entity.Realm;
 import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 
 import java.sql.SQLException;
@@ -40,4 +41,15 @@ public class RealmDao {
                 realm.getOwnerQuantity(), realm.getItemQuantity(), realm.getId());
     }
 
+    /**
+     * 通过服务器名查询服务器信息
+     * @param name
+     * @return
+     * @throws SQLException
+     */
+    public Realm findByName(String name) throws SQLException {
+        return runner.query(
+                "select id,name,type,url,last_modified as lastModified,`interval`,auction_quantity as auctionQuantity,owner_quantity as ownerQuantity,item_quantity as itemQuantity from realm where name=?",
+                new BeanHandler<Realm>(Realm.class), name);
+    }
 }

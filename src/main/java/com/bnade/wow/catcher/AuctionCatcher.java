@@ -324,7 +324,7 @@ public class AuctionCatcher {
 						if (!shutdown.exists()) {
 							try {
 								AuctionCatcher.process(RealmQueue.next());
-								Thread.sleep(1000);
+								Thread.sleep(100);
 							} catch (SQLException e) {
 								String msg = e.getMessage();
 								if (msg.length() > 255) {

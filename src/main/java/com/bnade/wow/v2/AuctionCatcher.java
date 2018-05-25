@@ -140,13 +140,13 @@ public class AuctionCatcher {
 		}
 
 		// 物品通知
-//		new Thread(() -> {
-//			try {
-//				processItemNotification(realm, minBuyoutAucs);
-//			} catch (Exception e) {
-//				logger.error(e.getMessage(), e);
-//			}
-//		}).start();
+		new Thread(() -> {
+			try {
+				processItemNotification(realm, minBuyoutAucs);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}).start();
 
 		long start;
 		AuctionDao auctionDao = new AuctionDao();
@@ -181,9 +181,9 @@ public class AuctionCatcher {
 		logger.info("[{}]拍卖数据文件信息更新{}条记录完毕", realm.getName(), realmDao.save(realm));
 		
 		// 保存所有最低一口价数据到历史表
-//		start = System.currentTimeMillis();
-//		auctionDao.copyMinBuyoutToDaily(realm);
-//		logger.info("[{}]保存{}条拍卖行最低一口价数据到历史表完毕,用时{}", realm.getName(), minBuyoutAucs.size(), TimeUtils.format(System.currentTimeMillis() - start));
+		start = System.currentTimeMillis();
+		auctionDao.copyCheapestAuctionToDaily(realm);
+		logger.info("[{}]保存{}条拍卖行最低一口价数据到历史表完毕,用时{}", realm.getName(), minBuyoutAucs.size(), TimeUtils.format(System.currentTimeMillis() - start));
 	}
 
 	// 810等级101可穿戴圣物的id

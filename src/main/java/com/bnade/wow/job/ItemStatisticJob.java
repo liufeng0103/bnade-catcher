@@ -1,4 +1,4 @@
-package com.bnade.wow.catcher;
+package com.bnade.wow.job;
 
 import com.bnade.wow.dao.ItemDao;
 import com.bnade.wow.entity.Item;
@@ -12,14 +12,16 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
@@ -42,6 +44,7 @@ public class ItemStatisticJob implements Job {
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         logger.info("开始物品统计");
         processItemsMarketPrice();
+        exportBnadeAddonPriceFile();
         logger.info("物品统计完毕");
     }
 
@@ -101,7 +104,7 @@ public class ItemStatisticJob implements Job {
 //                    logger.info("物品id：{} bonusList：{} 物品数：{} 服务器数：{} 市场价：{}", itemId, itemBonus.getBonusList(), quantitySum, calculateAuctions.size(), marketPrice);
                     long marketPrice = calculateMarketValue(calculateAuctions.stream().map((auc) -> auc.getBuyout()).collect(toList()));
                     // 最低价
-                    long cheapestPrice = calculateAuctions.get(0).getBuyout();
+                    long cheapestPrice = getCheapestPrice(calculateAuctions);
 
                     // 保存为历史
                     ItemStatistic newItemStatistic = new ItemStatistic();
@@ -132,7 +135,7 @@ public class ItemStatisticJob implements Job {
                         itemDao.saveItemStatistic(selectItemStatistic);
                     } else { // 已经存在
                         if (calculateAuctions.size() >= 85 || marketPrice < itemStatistic.getMarketPrice()) {
-                            logger.info("原服务器数{} 计算服务器数{} 当前价格{} 历史价格{}", auctions.size(), calculateAuctions.size(), marketPrice, itemStatistic.getMarketPrice());
+//                            logger.info("原服务器数{} 计算服务器数{} 当前价格{} 历史价格{}", auctions.size(), calculateAuctions.size(), marketPrice, itemStatistic.getMarketPrice());
                             itemStatistic.setMarketPrice(marketPrice);
                             itemStatistic.setCheapestPrice(cheapestPrice);
                             itemStatistic.setQuantity(quantitySum);
@@ -146,6 +149,60 @@ public class ItemStatisticJob implements Job {
         } else { // 宠物价格
 
         }
+    }
+
+    /**
+     * 获取最低价， 价格已排序， 只去最低不为0的price
+     * @return
+     */
+    public long getCheapestPrice(List<CheapestAuction> calculateAuctions) {
+        long price = 0;
+        for (CheapestAuction cheapestAuction : calculateAuctions) {
+            if (cheapestAuction.getBuyout() != 0) {
+                price = cheapestAuction.getBuyout();
+                break;
+            }
+        }
+        return price;
+    }
+
+    /**
+     * 导出bnade插件需要的文件
+     */
+    public void exportBnadeAddonPriceFile() {
+        try {
+            List<ItemStatistic> itemStatistics = itemDao.findBnadeAddonItems();
+            logger.info("获取到{}条数据", itemStatistics.size());
+            StringBuffer sb = new StringBuffer();
+            for (ItemStatistic item : itemStatistics) {
+                if (sb.length() > 0) {
+                    sb.append(",");
+                }
+                sb.append("[");
+                sb.append(item.getItemId());
+                sb.append("]={");
+                sb.append(item.getMarketPrice());
+                sb.append(",");
+                sb.append(item.getRealmQuantity());
+                sb.append("}");
+            }
+            SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String addonUpdateTime = sf.format(new Date());
+            String text = "Bnade_data={[\"updated\"]=\"" + addonUpdateTime + "\"," + sb.toString() + "}";
+            String fileName = "Data.lua";
+//            new File(fileName).delete();
+            Files.write(Paths.get(fileName), text.getBytes());
+            logger.info("保存到文件");
+            Files.write(Paths.get("data_version"), addonUpdateTime.getBytes());
+            logger.info("插件时间更新到文件");
+        } catch (SQLException | IOException e) {
+            logger.error("导出插件文件出错：{}", e.getMessage(), e);
+        }
+    }
+
+    public static void main(String[] args) {
+//        new ItemStatisticJob().processItemsMarketPrice();
+        new ItemStatisticJob().exportBnadeAddonPriceFile();
     }
 
     /**

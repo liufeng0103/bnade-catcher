@@ -197,3 +197,115 @@ CREATE TABLE IF NOT EXISTS message_board (
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
 	PRIMARY KEY(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '留言表';
+
+-- ----------------------------用户管理
+CREATE TABLE IF NOT EXISTS t_user (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	openId VARCHAR(32) NOT NULL,
+	email VARCHAR(20) NOT NULL default '',
+	validated INT UNSIGNED default 0,
+	nickname VARCHAR(20) NOT NULL,
+	token VARCHAR(32) NOT NULL default '',
+	expire BIGINT NOT NULL default 0,
+	createTime BIGINT UNSIGNED NOT NULL,
+	updateTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE t_user ADD INDEX(openId);
+ALTER TABLE t_user ADD INDEX(token);
+-- ALTER TABLE t_user ADD validated INT UNSIGNED default 0;
+-- ALTER TABLE t_user ADD token VARCHAR(32) NOT NULL default '';
+-- ALTER TABLE t_user ADD expire BIGINT NOT NULL default 0;
+
+-- 封杀的ip
+CREATE TABLE IF NOT EXISTS t_user_block_ip (
+	ip VARCHAR(16) NOT NULL,
+	message VARCHAR(128) NOT NULL default '',
+    PRIMARY KEY(ip)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ALTER TABLE t_user_block_ip ADD message VARCHAR(128) NOT NULL default '';
+
+CREATE TABLE IF NOT EXISTS t_user_realm (
+	userId INT UNSIGNED NOT NULL,
+	realmId INT UNSIGNED NOT NULL,
+    PRIMARY KEY(userId,realmId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS t_user_character (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	userId INT UNSIGNED NOT NULL,
+	realmId INT UNSIGNED NOT NULL,
+	name VARCHAR(12) NOT NULL,
+    PRIMARY KEY(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE t_user_character ADD INDEX(userId);
+
+CREATE TABLE IF NOT EXISTS t_user_item_notification (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	userId INT UNSIGNED NOT NULL,
+	realmId INT UNSIGNED NOT NULL,
+	itemId INT UNSIGNED NOT NULL,
+	petSpeciesId INT UNSIGNED NOT NULL default 0,
+	petBreedId INT UNSIGNED NOT NULL default 0,
+	bonusList VARCHAR(20) NOT NULL default '',
+	isInverted INT UNSIGNED NOT NULL,	-- 0-低于 其它-高于
+	price BIGINT UNSIGNED NOT NULL,
+	emailNotification INT UNSIGNED NOT NULL default 1,
+    PRIMARY KEY(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ALTER TABLE t_user_item_notification ADD bonusList VARCHAR(20) NOT NULL default '';
+ALTER TABLE t_user_item_notification ADD INDEX(userId,realmId);
+ALTER TABLE t_user_item_notification ADD INDEX(realmId);
+ALTER TABLE t_user_item_notification ADD UNIQUE INDEX(userId,realmId,itemId,petSpeciesId,petBreedId,bonusList,isInverted);
+
+-- ALTER TABLE t_user_item_notification ADD petSpeciesId INT UNSIGNED NOT NULL default 0;
+-- ALTER TABLE t_user_item_notification ADD petBreedId INT UNSIGNED NOT NULL default 0;
+
+CREATE TABLE IF NOT EXISTS t_user_mail_validation (
+	userId INT UNSIGNED NOT NULL,
+	acode VARCHAR(128) NOT NULL,
+	email VARCHAR(20) NOT NULL default '',
+	expired BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY(userId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ALTER TABLE t_user_mail_validation ADD email VARCHAR(20) NOT NULL default '';
+
+-- 激活码
+CREATE TABLE IF NOT EXISTS t_user_activation (
+	activationCode VARCHAR(16) NOT NULL,
+    PRIMARY KEY(activationCode)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- 激活历史
+CREATE TABLE IF NOT EXISTS t_user_activation_history (
+	activationCode VARCHAR(16) NOT NULL,
+	userId INT UNSIGNED NOT NULL,
+	dateTime timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(activationCode)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- -----------------------物价信息表，用于tsm app数据的更新
+CREATE TABLE IF NOT EXISTS t_tsm_app_data (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	realmId INT UNSIGNED NOT NULL,			-- 服务器id
+	itemId INT UNSIGNED NOT NULL,			-- 物品ID
+	minBuyout BIGINT UNSIGNED NOT NULL,		-- 最低一口价(近期)
+    historical BIGINT UNSIGNED NOT NULL,	-- 历史价格(近期)
+    PRIMARY KEY(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE t_tsm_app_data ADD INDEX(realmId);
+
+-- View, 包含tsm需要的所有数据
+CREATE VIEW v_tsm_app_data as
+select a.realmId,a.itemId,buy,minBuyout,historical,quantity
+from t_tsm_app_data a
+join t_ah_min_buyout_data b on
+a.realmId=b.realmId and a.itemId=b.item
+join t_item_market c on
+c.itemId=a.itemId
+
+-- 服务器数据的版本信息
+CREATE TABLE IF NOT EXISTS t_tsm_realm_data_version (
+	realmId INT UNSIGNED NOT NULL,			-- 服务器id
+    version VARCHAR(20) NOT NULL,			-- 插件版本
+    PRIMARY KEY(realmId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -143,6 +143,16 @@ public class ItemDao {
     }
 
     /**
+     * 插件需要的物品数据
+     * 目前不需要宠物和有多版本的物品
+     * @return
+     */
+    public List<ItemStatistic> findBnadeAddonItems() throws SQLException {
+        return runner.query("select * from item_statistic where item_id != 82800 and bonus_list='' and valid_time='9999-12-31 00:00:00'",
+                new BeanListHandler<ItemStatistic>(ItemStatistic.class, new BasicRowProcessor(new MyBeanProcessor())));
+    }
+
+    /**
      * 保存物品统计信息
      *
      * @param i ItemStatistic
